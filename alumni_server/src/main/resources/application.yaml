@@ -1,3 +1,38 @@
 spring:
   application:
     name: alumni_server
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/kj_alumni
+    username: postgres
+    password: omrakibe
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: omrakibe30@gmail.com
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+server:
+  port: 8081
+
+jwt:
+  secret: 9r6nGvBz3M8LqW2Xh7FpK4TsY1UvJ8Nc5ErA0DmQz6LxP9HbCf
+  access-token-expiration: 900000        # 15 minutes
+  refresh-token-expiration: 604800000
+
