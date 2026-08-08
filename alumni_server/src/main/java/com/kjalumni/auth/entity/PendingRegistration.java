@@ -61,15 +61,15 @@ public class PendingRegistration extends BaseEntity
     @Column(precision = 4, scale = 1)
     private BigDecimal experience;
 
+    @Column(nullable = false, length = 6)
+    private String emailOtp;
+
+    @Column(nullable = false)
+    private LocalDateTime otpExpiry;
+
     @Column(nullable = false)
     @Builder.Default
     private boolean emailVerified = false;
 
     private LocalDateTime emailVerifiedAt;
-
-    @Column(nullable = false, unique = true)
-    private String verificationToken;
-
-    @Column(nullable = false)
-    private LocalDateTime tokenExpiry;
 }

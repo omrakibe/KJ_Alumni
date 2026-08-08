@@ -1,27 +1,30 @@
 package com.kjalumni.auth.service;
 
 import com.kjalumni.alumni.repository.AlumniRepository;
-import com.kjalumni.auth.dto.AuthResponse;
-import com.kjalumni.auth.dto.LoginRequest;
-import com.kjalumni.auth.dto.RegisterRequest;
+import com.kjalumni.auth.dto.*;
+import com.kjalumni.auth.entity.PasswordResetRequest;
 import com.kjalumni.auth.entity.PendingRegistration;
 import com.kjalumni.auth.entity.User;
-import com.kjalumni.common.enums.Role;
-import com.kjalumni.common.enums.UserStatus;
+import com.kjalumni.auth.jwt.JwtService;
+import com.kjalumni.auth.repository.PasswordResetRequestRepository;
 import com.kjalumni.auth.repository.PendingRegistrationRepository;
 import com.kjalumni.auth.repository.UserRepository;
-import com.kjalumni.auth.service.IAuthService;
 import com.kjalumni.common.exception.InvalidRequestException;
 import com.kjalumni.common.exception.ResourceAlreadyExistsException;
 import com.kjalumni.common.exception.ResourceNotFoundException;
 import com.kjalumni.common.service.IEmailService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.UUID;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +36,10 @@ public class AuthService implements IAuthService
     private final AlumniRepository alumniRepository;
     private final PasswordEncoder passwordEncoder;
     private final IEmailService emailService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
+    private final PasswordResetRequestRepository
+            passwordResetRequestRepository;
 
     @Override
     @Transactional
@@ -69,8 +76,7 @@ public class AuthService implements IAuthService
             );
         }
 
-        // Generate verification token
-        String verificationToken = UUID.randomUUID().toString();
+        String otp = String.format("%06d", new SecureRandom().nextInt(1_000_000));
 
         PendingRegistration pendingRegistration = PendingRegistration.builder()
                 .firstName(request.getFirstName())
@@ -86,36 +92,65 @@ public class AuthService implements IAuthService
                 .jobRole(request.getJobRole())
                 .currentPackage(request.getCurrentPackage())
                 .experience(request.getExperience())
-                .verificationToken(verificationToken)
-                .tokenExpiry(LocalDateTime.now().plusHours(24))
+                .emailOtp(otp)
+                .otpExpiry(LocalDateTime.now().plusMinutes(10))
                 .build();
+
+        emailService.sendOtpEmail(
+                pendingRegistration.getEmail(),
+                pendingRegistration.getFirstName(),
+                otp
+        );
 
         pendingRegistrationRepository.save(pendingRegistration);
 
-        emailService.sendVerificationEmail(
-                pendingRegistration.getEmail(),
-                verificationToken
-        );
     }
 
+    @Transactional
     @Override
-    public AuthResponse login(LoginRequest request)
+    public void verifyOtp(VerifyOtpRequest request)
     {
-        throw new UnsupportedOperationException("Login not implemented yet.");
+
+        PendingRegistration pendingRegistration = pendingRegistrationRepository
+                .findByEmail(request.getEmail())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Registration request not found.")
+                );
+
+        if (pendingRegistration.isEmailVerified())
+        {
+            throw new InvalidRequestException("Email is already verified.");
+        }
+
+        if (pendingRegistration.getOtpExpiry().isBefore(LocalDateTime.now()))
+        {
+            throw new InvalidRequestException("OTP has expired.");
+        }
+
+        if (!pendingRegistration.getEmailOtp().equals(request.getOtp()))
+        {
+            throw new InvalidRequestException("Invalid OTP.");
+        }
+
+        pendingRegistration.setEmailVerified(true);
+        pendingRegistration.setEmailVerifiedAt(LocalDateTime.now());
+
+        pendingRegistrationRepository.save(pendingRegistration);
     }
 
     @Override
     @Transactional
-    public void verifyEmail(String token)
+    public void resendOtp(ResendOtpRequest request)
     {
 
         PendingRegistration pendingRegistration =
                 pendingRegistrationRepository
-                        .findByVerificationToken(token)
+                        .findByEmail(request.getEmail())
                         .orElseThrow(() ->
                                 new ResourceNotFoundException(
-                                        "Invalid verification token."
-                                ));
+                                        "Registration request not found."
+                                )
+                        );
 
         if (pendingRegistration.isEmailVerified())
         {
@@ -124,16 +159,171 @@ public class AuthService implements IAuthService
             );
         }
 
-        if (pendingRegistration.getTokenExpiry().isBefore(LocalDateTime.now()))
+        String otp = String.format(
+                "%06d",
+                new SecureRandom().nextInt(1_000_000)
+        );
+
+        pendingRegistration.setEmailOtp(otp);
+        pendingRegistration.setOtpExpiry(
+                LocalDateTime.now().plusMinutes(10)
+        );
+
+        pendingRegistrationRepository.save(pendingRegistration);
+
+        emailService.sendOtpEmail(
+                pendingRegistration.getEmail(),
+                pendingRegistration.getFirstName(),
+                otp
+        );
+    }
+
+    @Override
+    public AuthResponse login(LoginRequest request)
+    {
+
+        Authentication authentication =
+                authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(
+                                request.getEmail(),
+                                request.getPassword()
+                        )
+                );
+
+        User user = (User) authentication.getPrincipal();
+
+        Map<String, Object> claims = new HashMap<>();
+
+        claims.put("role", user.getRole().name());
+
+        String token = jwtService.generateToken(
+                claims,
+                user
+        );
+
+        return AuthResponse.builder()
+                .token(token)
+                .type("Bearer")
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public ForgotPasswordResponse forgotPassword(
+            ForgotPasswordRequest request)
+    {
+
+        User user = userRepository
+                .findByEmail(request.getEmail())
+                .orElse(null);
+
+        /*
+         * Do not reveal whether the email
+         * exists in the system.
+         */
+        if (user == null)
         {
+            return ForgotPasswordResponse.builder()
+                    .build();
+        }
+
+        /*
+         * Remove previous reset request.
+         */
+        passwordResetRequestRepository
+                .deleteByUserId(user.getId());
+
+        /*
+         * Generate 6-digit OTP.
+         */
+        String otp = String.format(
+                "%06d",
+                new SecureRandom().nextInt(1_000_000)
+        );
+
+        PasswordResetRequest resetRequest =
+                PasswordResetRequest.builder()
+                        .user(user)
+                        .otp(otp)
+                        .otpExpiry(
+                                LocalDateTime.now()
+                                        .plusMinutes(10)
+                        )
+                        .build();
+
+        passwordResetRequestRepository.save(
+                resetRequest
+        );
+
+        emailService.sendPasswordResetOtpEmail(
+                user.getEmail(),
+                otp
+        );
+
+        return ForgotPasswordResponse.builder()
+                .resetRequestId(resetRequest.getId())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public void resetPassword(
+            ResetPasswordRequest request)
+    {
+
+        PasswordResetRequest resetRequest =
+                passwordResetRequestRepository
+                        .findById(request.getResetRequestId())
+                        .orElseThrow(() ->
+                                new InvalidRequestException(
+                                        "Invalid password reset request."
+                                ));
+
+        /*
+         * Check OTP.
+         */
+        if (!resetRequest.getOtp()
+                .equals(request.getOtp()))
+        {
+
             throw new InvalidRequestException(
-                    "Verification token has expired."
+                    "Invalid OTP."
             );
         }
 
-        pendingRegistration.setEmailVerified(true);
-        pendingRegistration.setEmailVerifiedAt(LocalDateTime.now());
+        /*
+         * Check OTP expiry.
+         */
+        if (resetRequest.getOtpExpiry()
+                .isBefore(LocalDateTime.now()))
+        {
 
-        pendingRegistrationRepository.save(pendingRegistration);
+            throw new InvalidRequestException(
+                    "OTP has expired."
+            );
+        }
+
+        /*
+         * Get user associated with reset request.
+         */
+        User user = resetRequest.getUser();
+
+        /*
+         * Update password.
+         */
+        user.setPassword(
+                passwordEncoder.encode(
+                        request.getNewPassword()
+                )
+        );
+
+        userRepository.save(user);
+
+        /*
+         * OTP is consumed.
+         */
+        passwordResetRequestRepository.delete(
+                resetRequest
+        );
     }
 }

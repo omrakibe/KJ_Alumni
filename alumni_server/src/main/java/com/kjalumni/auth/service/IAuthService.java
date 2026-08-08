@@ -1,8 +1,6 @@
 package com.kjalumni.auth.service;
 
-import com.kjalumni.auth.dto.AuthResponse;
-import com.kjalumni.auth.dto.LoginRequest;
-import com.kjalumni.auth.dto.RegisterRequest;
+import com.kjalumni.auth.dto.*;
 
 public interface IAuthService
 {
@@ -10,5 +8,17 @@ public interface IAuthService
 
     AuthResponse login(LoginRequest request);
 
-    void verifyEmail(String token);
+    void verifyOtp(VerifyOtpRequest request);
+
+    void resendOtp(ResendOtpRequest request);
+
+//    void verifyEmail(String token);
+
+    ForgotPasswordResponse forgotPassword(
+            ForgotPasswordRequest request
+    );
+
+    void resetPassword(
+            ResetPasswordRequest request
+    );
 }

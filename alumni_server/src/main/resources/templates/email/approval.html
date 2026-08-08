@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Registration Approved</title>
+</head>
+
+<body style="
+    margin:0;
+    padding:0;
+    background:#f4f6f8;
+    font-family:Arial, Helvetica, sans-serif;
+">
+
+<table width="100%" cellpadding="0" cellspacing="0"
+       style="background:#f4f6f8;padding:40px 15px;">
+
+    <tr>
+        <td align="center">
+
+            <table width="600" cellpadding="0" cellspacing="0"
+                   style="
+                   max-width:600px;
+                   width:100%;
+                   background:#ffffff;
+                   border-radius:12px;
+                   overflow:hidden;
+                   box-shadow:0 4px 15px rgba(0,0,0,0.08);
+                   ">
+
+                <!-- Header -->
+
+                <tr>
+                    <td style="
+                        background:#7b1e1e;
+                        padding:28px;
+                        text-align:center;
+                        color:white;
+                    ">
+
+                        <h1 style="
+                            margin:0;
+                            font-size:24px;
+                            letter-spacing:1px;
+                        ">
+                            KJ ALUMNI PORTAL
+                        </h1>
+
+                    </td>
+                </tr>
+
+                <!-- Content -->
+
+                <tr>
+                    <td style="padding:40px 35px;">
+
+                        <div style="
+                            text-align:center;
+                            font-size:48px;
+                            margin-bottom:15px;
+                        ">
+                            🎉
+                        </div>
+
+                        <h2 style="
+                            text-align:center;
+                            color:#222222;
+                            margin-top:0;
+                        ">
+                            Registration Approved
+                        </h2>
+
+                        <p style="
+                            color:#555555;
+                            font-size:15px;
+                            line-height:1.7;
+                        ">
+                            Hello
+                            <strong th:text="${firstName}">
+                                Alumni
+                            </strong>,
+                        </p>
+
+                        <p style="
+                            color:#555555;
+                            font-size:15px;
+                            line-height:1.7;
+                        ">
+                            We're delighted to inform you that your
+                            registration for the
+                            <strong>KJ Alumni Portal</strong>
+                            has been approved.
+                        </p>
+
+                        <!-- Status -->
+
+                        <table width="100%" cellpadding="0" cellspacing="0"
+                               style="margin:30px 0;">
+
+                            <tr>
+                                <td align="center">
+
+                                    <div style="
+                                        display:inline-block;
+                                        background:#e8f7ee;
+                                        border-radius:8px;
+                                        padding:14px 28px;
+                                        color:#18794e;
+                                        font-weight:bold;
+                                        font-size:14px;
+                                    ">
+                                        ✓ ACCOUNT APPROVED
+                                    </div>
+
+                                </td>
+                            </tr>
+
+                        </table>
+
+                        <p style="
+                            color:#555555;
+                            font-size:15px;
+                            line-height:1.7;
+                            text-align:center;
+                        ">
+                            Your alumni account is now active.
+                            You can log in to the portal and
+                            explore the alumni community.
+                        </p>
+
+                        <!-- Button -->
+
+                        <table width="100%" cellpadding="0" cellspacing="0"
+                               style="margin:30px 0;">
+
+                            <tr>
+                                <td align="center">
+
+                                    <a th:href="${loginUrl}"
+                                       style="
+                                       display:inline-block;
+                                       background:#7b1e1e;
+                                       color:#ffffff;
+                                       text-decoration:none;
+                                       padding:14px 30px;
+                                       border-radius:7px;
+                                       font-size:14px;
+                                       font-weight:bold;
+                                       ">
+                                        LOGIN TO PORTAL
+                                    </a>
+
+                                </td>
+                            </tr>
+
+                        </table>
+
+                        <p style="
+                            text-align:center;
+                            color:#555555;
+                            font-size:15px;
+                        ">
+                            Welcome to the
+                            <strong>KJ Alumni Community!</strong>
+                        </p>
+
+                    </td>
+                </tr>
+
+                <!-- Footer -->
+
+                <tr>
+                    <td style="
+                        background:#f8f8f8;
+                        padding:22px;
+                        text-align:center;
+                    ">
+
+                        <p style="
+                            margin:0;
+                            color:#777777;
+                            font-size:12px;
+                        ">
+                            KJ Alumni Portal
+                        </p>
+
+                        <p style="
+                            margin:6px 0 0;
+                            color:#999999;
+                            font-size:11px;
+                        ">
+                            K J College of Engineering and Management Research
+                        </p>
+
+                    </td>
+                </tr>
+
+            </table>
+
+        </td>
+    </tr>
+
+</table>
+
+</body>
+</html>

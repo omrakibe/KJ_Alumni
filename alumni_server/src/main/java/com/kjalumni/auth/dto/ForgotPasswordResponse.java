@@ -2,16 +2,15 @@ package com.kjalumni.auth.dto;
 
 import lombok.*;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AuthResponse
+public class ForgotPasswordResponse
 {
 
-    private String token;
-
-    @Builder.Default
-    private String type = "Bearer";
+    private UUID resetRequestId;
 }
