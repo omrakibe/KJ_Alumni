@@ -7,7 +7,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 
-import AuthLayout from "../../component/auth/AuthLayout";
+import AuthLayout from "../../component/Auth/AuthLayout";
 
 import {
   verifyEmailOtp,
@@ -164,14 +164,14 @@ function VerifyEmail() {
         showFlash(
           "error",
           response.message ||
-            "Unable to verify the OTP."
+          "Unable to verify the OTP."
         );
       }
     } catch (error) {
       showFlash(
         "error",
         error.response?.data?.message ||
-          "Unable to verify the OTP. Please try again."
+        "Unable to verify the OTP. Please try again."
       );
     } finally {
       setLoading(false);
@@ -224,14 +224,14 @@ function VerifyEmail() {
         showFlash(
           "error",
           response.message ||
-            "Unable to resend OTP."
+          "Unable to resend OTP."
         );
       }
     } catch (error) {
       showFlash(
         "error",
         error.response?.data?.message ||
-          "Unable to resend OTP. Please try again."
+        "Unable to resend OTP. Please try again."
       );
     } finally {
       setResending(false);
@@ -286,11 +286,10 @@ function VerifyEmail() {
 
         {flash.message && (
           <div
-            className={`verify-flash ${
-              flash.type === "success"
-                ? "verify-flash-success"
-                : "verify-flash-error"
-            }`}
+            className={`verify-flash ${flash.type === "success"
+              ? "verify-flash-success"
+              : "verify-flash-error"
+              }`}
           >
             {flash.message}
           </div>
@@ -404,8 +403,8 @@ function VerifyEmail() {
               {resending
                 ? "Sending..."
                 : resendTimer > 0
-                ? `Resend OTP in ${resendTimer}s`
-                : "Resend OTP"}
+                  ? `Resend OTP in ${resendTimer}s`
+                  : "Resend OTP"}
 
             </button>
 

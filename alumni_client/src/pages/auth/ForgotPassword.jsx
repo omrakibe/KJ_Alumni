@@ -7,7 +7,7 @@ import {
   Send,
 } from "lucide-react";
 
-import AuthLayout from "../../component/auth/AuthLayout";
+import AuthLayout from "../../component/Auth/AuthLayout";
 
 import { forgotPassword } from "../../services/authService";
 
@@ -184,8 +184,8 @@ function ForgotPassword() {
         {flash.message && (
           <div
             className={`forgot-flash ${flash.type === "success"
-                ? "forgot-flash-success"
-                : "forgot-flash-error"
+              ? "forgot-flash-success"
+              : "forgot-flash-error"
               }`}
           >
             {flash.message}

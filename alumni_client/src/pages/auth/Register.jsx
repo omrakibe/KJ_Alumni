@@ -10,8 +10,8 @@ import {
 import { registerAlumni } from "../../services/authService";
 import { BRANCHES } from "./authConstants";
 
-import AuthLayout from "../../component/auth/AuthLayout";
-import FlashMessage from "../../component/auth/FlashMessage";
+import AuthLayout from "../../component/Auth/AuthLayout";
+import FlashMessage from "../../component/Auth/FlashMessage";
 
 import "../../styles/auth.css";
 import "../../styles/flashMessage.css";
@@ -235,11 +235,11 @@ function Register() {
          */
         setTimeout(() => {
           navigate("/verify-email", {
-           state: {
-             email: formData.email.trim(),
-          },
-       });
-      }, 1200);
+            state: {
+              email: formData.email.trim(),
+            },
+          });
+        }, 1200);
 
       } else {
         setFlash({
