@@ -8,7 +8,7 @@ import {
   EyeOff,
 } from "lucide-react";
 
-import AuthLayout from "../../component/auth/AuthLayout";
+import AuthLayout from "../../component/Auth/AuthLayout";
 import { resetPassword } from "../../services/authService";
 
 function ResetPassword() {
