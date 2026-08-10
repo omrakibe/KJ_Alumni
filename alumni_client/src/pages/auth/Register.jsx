@@ -10,7 +10,7 @@ import {
 import { registerAlumni } from "../../services/authService";
 import { BRANCHES } from "./authConstants";
 
-import AuthLayout from "../../component/auth/AuthLayout";
+import AuthLayout from "../../component/Auth/AuthLayout";
 import FlashMessage from "../../component/auth/FlashMessage";
 
 import "../../styles/auth.css";
