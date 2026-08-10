@@ -7,7 +7,7 @@ import {
   Send,
 } from "lucide-react";
 
-import AuthLayout from "../../component/auth/AuthLayout";
+import AuthLayout from "../../component/Auth/AuthLayout";
 
 import { forgotPassword } from "../../services/authService";
 
