@@ -1,6 +1,7 @@
 package com.kjalumni.auth.service;
 
 import com.kjalumni.auth.dto.*;
+import com.kjalumni.auth.entity.User;
 
 public interface IAuthService
 {
@@ -21,4 +22,6 @@ public interface IAuthService
     void resetPassword(
             ResetPasswordRequest request
     );
+
+    UserProfileResponse getCurrentUser(User user);
 }

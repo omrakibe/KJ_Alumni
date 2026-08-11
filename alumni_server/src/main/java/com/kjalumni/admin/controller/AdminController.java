@@ -1,15 +1,19 @@
 package com.kjalumni.admin.controller;
 
+import com.kjalumni.admin.dto.CreateAdminRequest;
 import com.kjalumni.admin.dto.RejectRegistrationRequest;
 import com.kjalumni.auth.dto.PendingRegistrationResponse;
 import com.kjalumni.admin.service.IAdminService;
+import com.kjalumni.auth.entity.User;
 import com.kjalumni.common.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -72,5 +76,62 @@ public class AdminController
                         .data(null)
                         .build()
         );
+    }
+
+    @PostMapping("/admins")
+    public ApiResponse<Void> createAdmin(
+            @Valid @RequestBody CreateAdminRequest request,
+            @AuthenticationPrincipal User currentUser
+    )
+    {
+
+        adminService.createAdmin(
+                request,
+                currentUser
+        );
+
+        return ApiResponse.<Void>builder()
+                .success(true)
+                .message("Admin created successfully.")
+                .data(null)
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
+
+    @GetMapping("/admins")
+    public ApiResponse<List<User>> getAllAdmins(
+            @AuthenticationPrincipal User currentUser
+    )
+    {
+
+        List<User> admins =
+                adminService.getAllAdmins(currentUser);
+
+        return ApiResponse.<List<User>>builder()
+                .success(true)
+                .message("Admins fetched successfully.")
+                .data(admins)
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
+
+    @DeleteMapping("/admins/{adminId}")
+    public ApiResponse<Void> deleteAdmin(
+            @PathVariable UUID adminId,
+            @AuthenticationPrincipal User currentUser
+    )
+    {
+
+        adminService.deleteAdmin(
+                adminId,
+                currentUser
+        );
+
+        return ApiResponse.<Void>builder()
+                .success(true)
+                .message("Admin deleted successfully.")
+                .data(null)
+                .timestamp(LocalDateTime.now())
+                .build();
     }
 }

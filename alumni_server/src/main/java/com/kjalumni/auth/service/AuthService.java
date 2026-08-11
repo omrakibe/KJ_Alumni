@@ -279,9 +279,6 @@ public class AuthService implements IAuthService
                                         "Invalid password reset request."
                                 ));
 
-        /*
-         * Check OTP.
-         */
         if (!resetRequest.getOtp()
                 .equals(request.getOtp()))
         {
@@ -291,9 +288,6 @@ public class AuthService implements IAuthService
             );
         }
 
-        /*
-         * Check OTP expiry.
-         */
         if (resetRequest.getOtpExpiry()
                 .isBefore(LocalDateTime.now()))
         {
@@ -303,14 +297,9 @@ public class AuthService implements IAuthService
             );
         }
 
-        /*
-         * Get user associated with reset request.
-         */
+
         User user = resetRequest.getUser();
 
-        /*
-         * Update password.
-         */
         user.setPassword(
                 passwordEncoder.encode(
                         request.getNewPassword()
@@ -325,5 +314,25 @@ public class AuthService implements IAuthService
         passwordResetRequestRepository.delete(
                 resetRequest
         );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserProfileResponse getCurrentUser(User user)
+    {
+
+        if (user == null)
+        {
+            throw new ResourceNotFoundException(
+                    "Authenticated user not found."
+            );
+        }
+
+        return UserProfileResponse.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .role(user.getRole())
+                .branch(user.getBranch())
+                .build();
     }
 }

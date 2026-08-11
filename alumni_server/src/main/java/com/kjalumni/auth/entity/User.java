@@ -1,5 +1,6 @@
 package com.kjalumni.auth.entity;
 
+import com.kjalumni.common.enums.Branch;
 import com.kjalumni.common.enums.Role;
 import com.kjalumni.common.enums.UserStatus;
 import com.kjalumni.common.entity.BaseEntity;
@@ -43,6 +44,10 @@ public class User extends BaseEntity implements UserDetails
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private Role role;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private Branch branch;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 40)
