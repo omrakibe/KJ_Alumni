@@ -237,8 +237,8 @@ function ResetPassword() {
         {flash.message && (
           <div
             className={`reset-flash ${flash.type === "success"
-                ? "reset-flash-success"
-                : "reset-flash-error"
+              ? "reset-flash-success"
+              : "reset-flash-error"
               }`}
           >
             {flash.message}

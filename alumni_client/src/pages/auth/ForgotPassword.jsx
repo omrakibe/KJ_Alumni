@@ -184,8 +184,8 @@ function ForgotPassword() {
         {flash.message && (
           <div
             className={`forgot-flash ${flash.type === "success"
-                ? "forgot-flash-success"
-                : "forgot-flash-error"
+              ? "forgot-flash-success"
+              : "forgot-flash-error"
               }`}
           >
             {flash.message}

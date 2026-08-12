@@ -641,13 +641,22 @@
   }
 
   .auth-logo-container {
-    width: 65px;
-    height: 65px;
+    width: 120px;
+    height: 120px;
+    background: #fff;
+    border-radius: 18px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
   }
 
   .auth-logo {
-    max-width: 56px;
-    max-height: 56px;
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
   }
 
   .auth-hero-eyebrow {

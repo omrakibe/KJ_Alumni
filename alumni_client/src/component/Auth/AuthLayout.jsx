@@ -4,13 +4,13 @@ import {
   CalendarDays,
 } from "lucide-react";
 
-import collegeLogo from "../../assets/trinity-logo.png";
+import collegeLogo from "../../assets/kjcoemr-logo.png";
 import campusImage from "../../assets/kjcoemr.webp";
 
 function AuthLayout({ children }) {
   return (
     <div className="auth-shell">
-      
+
       <aside className="auth-hero">
         <img
           src={campusImage}

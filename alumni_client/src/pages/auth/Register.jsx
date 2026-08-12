@@ -235,11 +235,11 @@ function Register() {
          */
         setTimeout(() => {
           navigate("/verify-email", {
-           state: {
-             email: formData.email.trim(),
-          },
-       });
-      }, 1200);
+            state: {
+              email: formData.email.trim(),
+            },
+          });
+        }, 1200);
 
       } else {
         setFlash({
