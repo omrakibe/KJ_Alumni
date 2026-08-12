@@ -1,4 +1,8 @@
-import { Routes, Route } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 
 import ProtectedRoute from "./ProtectedRoute";
 import SuperAdminRoute from "./SuperAdminRoute";
@@ -7,6 +11,9 @@ import Home from "../pages/public/Home";
 
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
+import VerifyEmail from "../pages/auth/VerifyEmail";
+import ForgotPassword from "../pages/auth/ForgotPassword";
+import ResetPassword from "../pages/auth/ResetPassword";
 
 import AlumniDashboard from "../pages/alumni/AlumniDashboard";
 
@@ -16,13 +23,15 @@ import AdminManagement from "../pages/admin/AdminManagement";
 import Registrations from "../pages/admin/registrations/Registrations";
 
 
+import ProtectedRoute from "../component/auth/ProtectedRoute";
+
 function AppRoutes() {
   return (
     <Routes>
 
-      {/* =========================
+      {/* =========================================
           PUBLIC
-      ========================= */}
+      ========================================== */}
 
       <Route
         path="/"
@@ -44,10 +53,34 @@ function AppRoutes() {
         element={<Register />}
       />
 
+      <Route
+        path="/verify-email"
+        element={<VerifyEmail />}
+      />
 
-      {/* =========================
+      <Route
+        path="/forgot-password"
+        element={<ForgotPassword />}
+      />
+
+      <Route
+        path="/reset-password"
+        element={<ResetPassword />}
+      />
+
+
+      {/* =========================================
           ALUMNI
-      ========================= */}
+      ========================================== */}
+
+      <Route
+        path="/alumni"
+        element={
+          <ProtectedRoute allowedRole="ALUMNI">
+            <AlumniDashboard />
+          </ProtectedRoute>
+        }
+      />
 
       <Route
         path="/alumni/dashboard"
@@ -59,9 +92,18 @@ function AppRoutes() {
       />
 
 
-      {/* =========================
-          ADMIN DASHBOARD
-      ========================= */}
+      {/* =========================================
+          ADMIN
+      ========================================== */}
+
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute allowedRole="ADMIN">
+            <AdminDashboard />
+          </ProtectedRoute>
+        }
+      />
 
       <Route
         path="/admin/dashboard"
@@ -73,37 +115,17 @@ function AppRoutes() {
       />
 
 
-      {/* =========================
-          ADMIN REGISTRATIONS
-          Super Admin + Branch Admin
-      ========================= */}
-
-      {/* <Route
-        path="/admin/registrations"
-        element={
-          <ProtectedRoute allowedRole="ADMIN">
-            <Registrations />
-          </ProtectedRoute>
-        }
-      /> */}
+      {/* =========================================
+          UNKNOWN ROUTES
+      ========================================== */}
 
       <Route
-  path="/admin/registrations"
-  element={<Registrations />}
-/>
-
-
-      {/* =========================
-          ADMIN MANAGEMENT
-          SUPER ADMIN ONLY
-      ========================= */}
-
-      <Route
-        path="/admin/admins"
+        path="*"
         element={
-          <SuperAdminRoute>
-            <AdminManagement />
-          </SuperAdminRoute>
+          <Navigate
+            to="/login"
+            replace
+          />
         }
       />
 
