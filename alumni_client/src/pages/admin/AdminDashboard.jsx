@@ -1,31 +1,24 @@
 import { Link } from "react-router-dom";
 import "./AdminDashboard.css";
-import { useAuth } from "../../context/AuthContext";
-function AdminDashboard() {
-  const { user, logout } = useAuth();
 
-  const isSuperAdmin = user?.role === "ADMIN" && user?.branch === null;
+function AdminDashboard() {
   return (
     <div className="admin-dashboard">
+
       {/* Sidebar */}
       <aside className="admin-sidebar">
+
         <div className="admin-logo">
           KJCOEMR
           <span>Admin Portal</span>
         </div>
 
-        <div className="branch-info">
-          <span>Administrator Type</span>
-
-          <strong>
-            {isSuperAdmin ? "Super Administrator" : "Branch Administrator"}
-          </strong>
-
-          {!isSuperAdmin && <span>Branch: {user?.branch}</span>}
-        </div>
-
         <nav className="admin-menu">
-          <Link to="/admin/dashboard" className="admin-link active">
+
+          <Link
+            to="/admin/dashboard"
+            className="admin-link active"
+          >
             Dashboard
           </Link>
 
@@ -57,55 +50,55 @@ function AdminDashboard() {
             Reports
           </Link>
 
-          <Link 
-          to ="/admin/registrations"
-          classname="admin-link"
-          >Alumni Registrations</Link>
         </nav>
 
         <div className="admin-bottom">
+
           <Link to="/" className="admin-link">
             View Website
           </Link>
 
-          <button
-            className="admin-link admin-logout logout-button"
-            onClick={logout}
-          >
+          <Link to="/login" className="admin-link admin-logout">
             Logout
-          </button>
+          </Link>
+
         </div>
+
       </aside>
+
 
       {/* Main */}
       <main className="admin-main">
-        {isSuperAdmin && (
-          <Link to="/admin/admins" className="admin-link">
-            Admin Management
-          </Link>
-        )}
+
         {/* Topbar */}
         <header className="admin-topbar">
+
           <div>
             <h1>Admin Dashboard</h1>
-            <p>Manage the KJCOEMR alumni platform.</p>
+            <p>
+              Manage the KJCOEMR alumni platform.
+            </p>
           </div>
 
           <div className="admin-user">
-            <div className="admin-avatar">A</div>
+
+            <div className="admin-avatar">
+              A
+            </div>
 
             <div>
-              <strong>
-                {isSuperAdmin ? "Super Admin" : `${user?.branch} Admin`}
-              </strong>
-
-              <span>{user?.email}</span>
+              <strong>Administrator</strong>
+              <span>Alumni Cell</span>
             </div>
+
           </div>
+
         </header>
+
 
         {/* Statistics */}
         <section className="admin-stats">
+
           <div className="admin-stat-card">
             <span>Total Alumni</span>
             <strong>12,500</strong>
@@ -129,18 +122,24 @@ function AdminDashboard() {
             <strong>37</strong>
             <small>Requires review</small>
           </div>
+
         </section>
+
 
         {/* Quick Actions */}
         <section className="quick-actions">
+
           <div className="section-heading">
             <h2>Quick Actions</h2>
             <p>Frequently used administration tools.</p>
           </div>
 
           <div className="quick-action-grid">
+
             <Link to="/admin/alumni" className="quick-action">
-              <div className="quick-icon blue">A</div>
+              <div className="quick-icon blue">
+                A
+              </div>
 
               <div>
                 <h3>Manage Alumni</h3>
@@ -148,8 +147,11 @@ function AdminDashboard() {
               </div>
             </Link>
 
+
             <Link to="/admin/events" className="quick-action">
-              <div className="quick-icon green">E</div>
+              <div className="quick-icon green">
+                E
+              </div>
 
               <div>
                 <h3>Create Event</h3>
@@ -157,8 +159,14 @@ function AdminDashboard() {
               </div>
             </Link>
 
-            <Link to="/admin/announcements" className="quick-action">
-              <div className="quick-icon orange">N</div>
+
+            <Link
+              to="/admin/announcements"
+              className="quick-action"
+            >
+              <div className="quick-icon orange">
+                N
+              </div>
 
               <div>
                 <h3>Announcement</h3>
@@ -166,117 +174,180 @@ function AdminDashboard() {
               </div>
             </Link>
 
+
             <Link to="/admin/jobs" className="quick-action">
-              <div className="quick-icon purple">J</div>
+              <div className="quick-icon purple">
+                J
+              </div>
 
               <div>
                 <h3>Review Jobs</h3>
                 <p>Approve job postings</p>
               </div>
             </Link>
+
           </div>
+
         </section>
+
 
         {/* Main Content */}
         <section className="admin-content-grid">
+
           {/* Pending Alumni */}
           <div className="admin-card">
+
             <div className="admin-card-header">
+
               <div>
                 <h2>Pending Alumni Registrations</h2>
                 <p>Users waiting for approval</p>
               </div>
 
-              <Link to="/admin/alumni">View All</Link>
+              <Link to="/admin/alumni">
+                View All
+              </Link>
+
             </div>
 
+
             <div className="pending-user">
-              <div className="pending-avatar">RP</div>
+
+              <div className="pending-avatar">
+                RP
+              </div>
 
               <div className="pending-info">
                 <strong>Rahul Patil</strong>
                 <span>Computer Engineering • 2025</span>
               </div>
 
-              <button className="approve-button">Approve</button>
+              <button className="approve-button">
+                Approve
+              </button>
+
             </div>
 
+
             <div className="pending-user">
-              <div className="pending-avatar">SP</div>
+
+              <div className="pending-avatar">
+                SP
+              </div>
 
               <div className="pending-info">
                 <strong>Sneha Patil</strong>
                 <span>Information Technology • 2024</span>
               </div>
 
-              <button className="approve-button">Approve</button>
+              <button className="approve-button">
+                Approve
+              </button>
+
             </div>
 
+
             <div className="pending-user">
-              <div className="pending-avatar">AK</div>
+
+              <div className="pending-avatar">
+                AK
+              </div>
 
               <div className="pending-info">
                 <strong>Akash Kulkarni</strong>
                 <span>Computer Engineering • 2025</span>
               </div>
 
-              <button className="approve-button">Approve</button>
+              <button className="approve-button">
+                Approve
+              </button>
+
             </div>
+
           </div>
+
 
           {/* Recent Activities */}
           <div className="admin-card">
+
             <div className="admin-card-header">
+
               <div>
                 <h2>Recent Activities</h2>
                 <p>Latest system activities</p>
               </div>
+
             </div>
 
+
             <div className="activity">
-              <div className="activity-icon success">✓</div>
+
+              <div className="activity-icon success">
+                ✓
+              </div>
 
               <div>
                 <strong>Alumni approved</strong>
                 <p>Viraj Pawar was approved.</p>
                 <span>10 minutes ago</span>
               </div>
+
             </div>
 
+
             <div className="activity">
-              <div className="activity-icon event">E</div>
+
+              <div className="activity-icon event">
+                E
+              </div>
 
               <div>
                 <strong>New event created</strong>
                 <p>Alumni Meet 2027 was created.</p>
                 <span>1 hour ago</span>
               </div>
+
             </div>
 
+
             <div className="activity">
-              <div className="activity-icon job">J</div>
+
+              <div className="activity-icon job">
+                J
+              </div>
 
               <div>
                 <strong>Job submitted</strong>
                 <p>A new job requires approval.</p>
                 <span>2 hours ago</span>
               </div>
+
             </div>
+
           </div>
+
         </section>
+
 
         {/* Recent Jobs */}
         <section className="admin-card recent-jobs">
+
           <div className="admin-card-header">
+
             <div>
               <h2>Pending Job Posts</h2>
               <p>Jobs waiting for administrator approval</p>
             </div>
 
-            <Link to="/admin/jobs">View All</Link>
+            <Link to="/admin/jobs">
+              View All
+            </Link>
+
           </div>
 
+
           <div className="admin-job-table">
+
             <div className="admin-job-row admin-job-header">
               <span>Position</span>
               <span>Company</span>
@@ -285,26 +356,40 @@ function AdminDashboard() {
               <span>Action</span>
             </div>
 
+
             <div className="admin-job-row">
+
               <span>Software Engineer</span>
               <span>Tech Solutions</span>
               <span>Rahul Patil</span>
               <span>Pune</span>
 
-              <button className="review-button">Review</button>
+              <button className="review-button">
+                Review
+              </button>
+
             </div>
 
+
             <div className="admin-job-row">
+
               <span>Frontend Developer</span>
               <span>ABC Technologies</span>
               <span>Sneha Patil</span>
               <span>Mumbai</span>
 
-              <button className="review-button">Review</button>
+              <button className="review-button">
+                Review
+              </button>
+
             </div>
+
           </div>
+
         </section>
+
       </main>
+
     </div>
   );
 }

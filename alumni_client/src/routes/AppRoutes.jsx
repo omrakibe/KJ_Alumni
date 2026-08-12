@@ -4,9 +4,6 @@ import {
   Navigate,
 } from "react-router-dom";
 
-import ProtectedRoute from "./ProtectedRoute";
-import SuperAdminRoute from "./SuperAdminRoute";
-
 import Home from "../pages/public/Home";
 
 import Login from "../pages/auth/Login";
@@ -16,12 +13,7 @@ import ForgotPassword from "../pages/auth/ForgotPassword";
 import ResetPassword from "../pages/auth/ResetPassword";
 
 import AlumniDashboard from "../pages/alumni/AlumniDashboard";
-
 import AdminDashboard from "../pages/admin/AdminDashboard";
-import AdminManagement from "../pages/admin/AdminManagement";
-
-import Registrations from "../pages/admin/registrations/Registrations";
-
 
 import ProtectedRoute from "../component/auth/ProtectedRoute";
 
@@ -39,9 +31,9 @@ function AppRoutes() {
       />
 
 
-      {/* =========================
+      {/* =========================================
           AUTHENTICATION
-      ========================= */}
+      ========================================== */}
 
       <Route
         path="/login"
@@ -132,6 +124,5 @@ function AppRoutes() {
     </Routes>
   );
 }
-
 
 export default AppRoutes;
