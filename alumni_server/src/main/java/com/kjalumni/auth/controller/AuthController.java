@@ -1,12 +1,16 @@
 package com.kjalumni.auth.controller;
 
 import com.kjalumni.auth.dto.*;
+import com.kjalumni.auth.entity.User;
 import com.kjalumni.auth.service.AuthService;
 import com.kjalumni.common.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -115,5 +119,22 @@ public class AuthController
                         .data(null)
                         .build()
         );
+    }
+
+    @GetMapping("/me")
+    public ApiResponse<UserProfileResponse> getCurrentUser(
+            @AuthenticationPrincipal User user
+    )
+    {
+
+        UserProfileResponse response =
+                authService.getCurrentUser(user);
+
+        return ApiResponse.<UserProfileResponse>builder()
+                .success(true)
+                .message("User profile fetched successfully.")
+                .data(response)
+                .timestamp(LocalDateTime.now())
+                .build();
     }
 }

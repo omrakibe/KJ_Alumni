@@ -1,5 +1,6 @@
 package com.kjalumni.admin.service;
 
+import com.kjalumni.admin.dto.CreateAdminRequest;
 import com.kjalumni.alumni.entity.Alumni;
 import com.kjalumni.auth.dto.PendingRegistrationResponse;
 import com.kjalumni.auth.entity.PendingRegistration;
@@ -14,6 +15,8 @@ import com.kjalumni.common.exception.ResourceAlreadyExistsException;
 import com.kjalumni.common.exception.ResourceNotFoundException;
 import com.kjalumni.common.service.IEmailService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +32,7 @@ public class AdminService implements IAdminService
     private final UserRepository userRepository;
     private final AlumniRepository alumniRepository;
     private final IEmailService emailService;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional(readOnly = true)
@@ -90,6 +94,7 @@ public class AdminService implements IAdminService
                 .email(pendingRegistration.getEmail())
                 .password(pendingRegistration.getPassword())
                 .role(Role.ALUMNI)
+                .branch(pendingRegistration.getBranch())
                 .status(UserStatus.ACTIVE)
                 .build();
 
@@ -158,6 +163,99 @@ public class AdminService implements IAdminService
         pendingRegistrationRepository.delete(
                 pendingRegistration
         );
+    }
+
+    @Override
+    public void createAdmin(CreateAdminRequest request, User currentUser)
+    {
+        if (currentUser.getRole() != Role.ADMIN
+                || currentUser.getBranch() != null)
+        {
+
+            throw new AccessDeniedException(
+                    "Only Super Admin can create new admins."
+            );
+        }
+
+        if (userRepository.existsByEmail(request.getEmail()))
+        {
+
+            throw new ResourceAlreadyExistsException(
+                    "Email is already registered."
+            );
+        }
+
+        User admin = User.builder()
+                .email(request.getEmail())
+                .password(
+                        passwordEncoder.encode(
+                                request.getPassword()
+                        )
+                )
+                .role(Role.ADMIN)
+                .branch(request.getBranch())
+                .status(UserStatus.ACTIVE)
+                .build();
+
+        userRepository.save(admin);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<User> getAllAdmins(User currentUser)
+    {
+
+        validateSuperAdmin(currentUser);
+
+        return userRepository.findAllByRole(Role.ADMIN);
+    }
+
+    @Override
+    @Transactional
+    public void deleteAdmin(
+            UUID adminId,
+            User currentUser
+    )
+    {
+
+        validateSuperAdmin(currentUser);
+
+        User admin = userRepository.findById(adminId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Admin not found."
+                        )
+                );
+
+        if (admin.getRole() != Role.ADMIN)
+        {
+            throw new InvalidRequestException(
+                    "The selected user is not an admin."
+            );
+        }
+
+        // Prevent Super Admin from deleting themselves
+        if (admin.getId().equals(currentUser.getId()))
+        {
+            throw new InvalidRequestException(
+                    "Super Admin cannot delete themselves."
+            );
+        }
+
+        userRepository.delete(admin);
+    }
+
+    private void validateSuperAdmin(User currentUser)
+    {
+
+        if (currentUser.getRole() != Role.ADMIN
+                || currentUser.getBranch() != null)
+        {
+
+            throw new AccessDeniedException(
+                    "Only Super Admin can perform this action."
+            );
+        }
     }
 
     private PendingRegistrationResponse mapToResponse(
