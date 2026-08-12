@@ -56,6 +56,11 @@ function AdminDashboard() {
           <Link to="/admin/reports" className="admin-link">
             Reports
           </Link>
+
+          <Link 
+          to ="/admin/registrations"
+          classname="admin-link"
+          >Alumni Registrations</Link>
         </nav>
 
         <div className="admin-bottom">
