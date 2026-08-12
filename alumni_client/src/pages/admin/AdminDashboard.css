@@ -480,4 +480,30 @@
   .quick-action-grid {
     grid-template-columns: 1fr;
   }
+  .logout-button {
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+.branch-info {
+  margin-bottom: 25px;
+  padding: 15px 20px;
+  background: white;
+  border-radius: 8px;
+  border-left: 4px solid #123b6d;
+}
+
+.branch-info span {
+  display: block;
+  color: #6b7280;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.branch-info strong {
+  display: block;
+  margin-bottom: 4px;
+}
 }
