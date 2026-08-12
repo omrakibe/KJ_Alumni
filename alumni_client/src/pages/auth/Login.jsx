@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-
+import { jwtDecode } from "jwt-decode";
 import {
   LogIn,
   Mail,
@@ -122,9 +122,43 @@ function Login() {
          * Once the backend provides role information,
          * we can route accordingly.
          */
+        if (!token) {
+          setFlash({
+            type: "error",
+            message:
+              "Login successful, but authentication token was not received.",
+          });
+
+          return;
+        }
+
+        const decodedToken = jwtDecode(token);
+
+        const role =
+          decodedToken.role ||
+          decodedToken.roles?.[0];
+
+        console.log("Decoded JWT:", decodedToken);
+        console.log("User role:", role);
+
+        setFlash({
+          type: "success",
+          message: response.message || "Login successful.",
+        });
+
         setTimeout(() => {
-          navigate("/");
-        }, 1000);
+          if (role === "ADMIN") {
+            navigate("/admin/dashboard");
+          } else if (role === "ALUMNI") {
+            navigate("/alumni/dashboard");
+          } else {
+            setFlash({
+              type: "error",
+              message:
+                "Login successful, but your account role could not be determined.",
+            });
+          }
+        }, 800);
       } else {
         setFlash({
           type: "error",
