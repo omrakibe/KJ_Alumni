@@ -1,5 +1,6 @@
 package com.kjalumni.admin.service;
 
+import com.kjalumni.admin.dto.AdminDashboardResponse;
 import com.kjalumni.admin.dto.CreateAdminRequest;
 import com.kjalumni.auth.dto.PendingRegistrationResponse;
 import com.kjalumni.auth.entity.User;
@@ -24,4 +25,6 @@ public interface IAdminService
     List<User> getAllAdmins(User currentUser);
 
     void deleteAdmin(UUID adminId, User currentUser);
+
+    AdminDashboardResponse getDashboard(User currentUser);
 }
