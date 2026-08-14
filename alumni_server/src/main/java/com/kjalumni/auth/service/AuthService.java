@@ -9,12 +9,15 @@ import com.kjalumni.auth.jwt.JwtService;
 import com.kjalumni.auth.repository.PasswordResetRequestRepository;
 import com.kjalumni.auth.repository.PendingRegistrationRepository;
 import com.kjalumni.auth.repository.UserRepository;
+import com.kjalumni.common.enums.UserStatus;
+import com.kjalumni.common.exception.AccountPendingException;
 import com.kjalumni.common.exception.InvalidRequestException;
 import com.kjalumni.common.exception.ResourceAlreadyExistsException;
 import com.kjalumni.common.exception.ResourceNotFoundException;
 import com.kjalumni.common.service.IEmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -93,6 +96,7 @@ public class AuthService implements IAuthService
                 .currentPackage(request.getCurrentPackage())
                 .experience(request.getExperience())
                 .emailOtp(otp)
+                .status(UserStatus.PENDING_APPROVAL)
                 .otpExpiry(LocalDateTime.now().plusMinutes(10))
                 .build();
 
@@ -181,6 +185,18 @@ public class AuthService implements IAuthService
     @Override
     public AuthResponse login(LoginRequest request)
     {
+
+        PendingRegistration user1 = pendingRegistrationRepository.findByEmail(request.getEmail())
+                .orElseThrow(() ->
+                        new BadCredentialsException("Email not found!")
+                );
+
+        if (user1.getStatus() == UserStatus.PENDING_APPROVAL)
+        {
+            throw new AccountPendingException(
+                    "Your registration is pending admin approval."
+            );
+        }
 
         Authentication authentication =
                 authenticationManager.authenticate(
