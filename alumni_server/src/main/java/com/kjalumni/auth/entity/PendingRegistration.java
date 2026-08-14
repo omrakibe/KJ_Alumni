@@ -2,6 +2,7 @@ package com.kjalumni.auth.entity;
 
 import com.kjalumni.common.enums.Branch;
 import com.kjalumni.common.entity.BaseEntity;
+import com.kjalumni.common.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -66,6 +67,10 @@ public class PendingRegistration extends BaseEntity
 
     @Column(nullable = false)
     private LocalDateTime otpExpiry;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private UserStatus status;
 
     @Column(nullable = false)
     @Builder.Default
