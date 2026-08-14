@@ -1,5 +1,6 @@
 package com.kjalumni.admin.service;
 
+import com.kjalumni.admin.dto.AdminDashboardResponse;
 import com.kjalumni.admin.dto.CreateAdminRequest;
 import com.kjalumni.alumni.entity.Alumni;
 import com.kjalumni.auth.dto.PendingRegistrationResponse;
@@ -256,6 +257,106 @@ public class AdminService implements IAdminService
                     "Only Super Admin can perform this action."
             );
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AdminDashboardResponse getDashboard(User currentUser)
+    {
+        boolean isSuperAdmin =
+                currentUser.getRole() == Role.ADMIN
+                        && currentUser.getBranch() == null;
+
+        boolean isBranchAdmin =
+                currentUser.getRole() == Role.ADMIN
+                        && currentUser.getBranch() != null;
+
+        if (!isSuperAdmin && !isBranchAdmin)
+        {
+            throw new AccessDeniedException(
+                    "Only admins can access the dashboard."
+            );
+        }
+
+        long totalAlumni;
+        long activeAlumni;
+        long suspendedAlumni;
+        long pendingRegistrations;
+        Long totalAdmins=null;
+        Long activeAdmins = null;
+
+        if (isSuperAdmin)
+        {
+            totalAlumni =
+                    userRepository.countByRole(Role.ALUMNI);
+
+            activeAlumni =
+                    userRepository.countByRoleAndStatus(
+                            Role.ALUMNI,
+                            UserStatus.ACTIVE
+                    );
+
+            suspendedAlumni =
+                    userRepository.countByRoleAndStatus(
+                            Role.ALUMNI,
+                            UserStatus.SUSPENDED
+                    );
+
+            pendingRegistrations =
+                    pendingRegistrationRepository
+                            .countByEmailVerifiedTrue();
+
+            totalAdmins =
+                    userRepository.countByRole(Role.ADMIN);
+
+            activeAdmins =
+                    userRepository.countByRoleAndStatus(
+                            Role.ADMIN,
+                            UserStatus.ACTIVE
+                    );
+        } else
+        {
+            totalAlumni =
+                    userRepository.countByRoleAndBranch(
+                            Role.ALUMNI,
+                            currentUser.getBranch()
+                    );
+
+            activeAlumni =
+                    userRepository.countByRoleAndBranchAndStatus(
+                            Role.ALUMNI,
+                            currentUser.getBranch(),
+                            UserStatus.ACTIVE
+                    );
+
+            suspendedAlumni =
+                    userRepository.countByRoleAndBranchAndStatus(
+                            Role.ALUMNI,
+                            currentUser.getBranch(),
+                            UserStatus.SUSPENDED
+                    );
+
+            /*
+             * Pending registrations already contain branch information,
+             * so this needs a branch-specific repository query.
+             */
+            pendingRegistrations =
+                    pendingRegistrationRepository
+                            .countByEmailVerifiedTrueAndBranch(
+                                    currentUser.getBranch()
+                            );
+        }
+
+
+
+        return AdminDashboardResponse.builder()
+                .totalAlumni(totalAlumni)
+                .activeAlumni(activeAlumni)
+                .suspendedAlumni(suspendedAlumni)
+                .pendingRegistrations(pendingRegistrations)
+                .totalAdmins(totalAdmins)
+                .activeAdmins(activeAdmins)
+                .build();
     }
 
     private PendingRegistrationResponse mapToResponse(

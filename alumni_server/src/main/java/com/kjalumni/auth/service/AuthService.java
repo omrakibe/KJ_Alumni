@@ -9,12 +9,12 @@ import com.kjalumni.auth.jwt.JwtService;
 import com.kjalumni.auth.repository.PasswordResetRequestRepository;
 import com.kjalumni.auth.repository.PendingRegistrationRepository;
 import com.kjalumni.auth.repository.UserRepository;
-import com.kjalumni.common.exception.InvalidRequestException;
-import com.kjalumni.common.exception.ResourceAlreadyExistsException;
-import com.kjalumni.common.exception.ResourceNotFoundException;
+import com.kjalumni.common.enums.UserStatus;
+import com.kjalumni.common.exception.*;
 import com.kjalumni.common.service.IEmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,6 +25,7 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -93,6 +94,7 @@ public class AuthService implements IAuthService
                 .currentPackage(request.getCurrentPackage())
                 .experience(request.getExperience())
                 .emailOtp(otp)
+                .status(UserStatus.PENDING_APPROVAL)
                 .otpExpiry(LocalDateTime.now().plusMinutes(10))
                 .build();
 
@@ -181,6 +183,39 @@ public class AuthService implements IAuthService
     @Override
     public AuthResponse login(LoginRequest request)
     {
+
+        Optional<User> existingUser =
+                userRepository.findByEmail(request.getEmail());
+
+        if (existingUser.isEmpty())
+        {
+
+            PendingRegistration pendingRegistration =
+                    pendingRegistrationRepository
+                            .findByEmail(request.getEmail())
+                            .orElseThrow(() ->
+                                    new BadCredentialsException(
+                                            "Email not found!"
+                                    )
+                            );
+
+            if (!pendingRegistration.isEmailVerified())
+            {
+
+                throw new EmailNotVerifiedException(
+                        "Please verify your email before logging in."
+                );
+            }
+
+            if (pendingRegistration.getStatus()
+                    == UserStatus.PENDING_APPROVAL)
+            {
+
+                throw new AccountPendingException(
+                        "Your registration is pending admin approval."
+                );
+            }
+        }
 
         Authentication authentication =
                 authenticationManager.authenticate(

@@ -1,5 +1,6 @@
 package com.kjalumni.admin.controller;
 
+import com.kjalumni.admin.dto.AdminDashboardResponse;
 import com.kjalumni.admin.dto.CreateAdminRequest;
 import com.kjalumni.admin.dto.RejectRegistrationRequest;
 import com.kjalumni.auth.dto.PendingRegistrationResponse;
@@ -25,6 +26,22 @@ public class AdminController
 
     private final IAdminService adminService;
 
+    @GetMapping("/dashboard")
+    public ApiResponse<AdminDashboardResponse> getDashboard(
+            @AuthenticationPrincipal User currentUser
+    )
+    {
+        AdminDashboardResponse dashboard =
+                adminService.getDashboard(currentUser);
+
+        return ApiResponse.<AdminDashboardResponse>builder()
+                .success(true)
+                .message("Dashboard data fetched successfully.")
+                .data(dashboard)
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
+    
     @GetMapping("/registrations")
     public ResponseEntity<ApiResponse<List<PendingRegistrationResponse>>>
     getVerifiedRegistrations()

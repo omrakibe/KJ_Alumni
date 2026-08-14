@@ -1,6 +1,7 @@
 package com.kjalumni.auth.repository;
 
 import com.kjalumni.auth.entity.PendingRegistration;
+import com.kjalumni.common.enums.Branch;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -19,4 +20,8 @@ public interface PendingRegistrationRepository extends JpaRepository<PendingRegi
     void deleteByEmail(String email);
 
     List<PendingRegistration> findByEmailVerifiedTrue();
+
+    long countByEmailVerifiedTrue();
+
+    long countByEmailVerifiedTrueAndBranch(Branch branch);
 }
