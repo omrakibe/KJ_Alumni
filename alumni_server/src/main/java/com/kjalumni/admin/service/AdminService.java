@@ -282,6 +282,8 @@ public class AdminService implements IAdminService
         long activeAlumni;
         long suspendedAlumni;
         long pendingRegistrations;
+        Long totalAdmins=null;
+        Long activeAdmins = null;
 
         if (isSuperAdmin)
         {
@@ -303,6 +305,15 @@ public class AdminService implements IAdminService
             pendingRegistrations =
                     pendingRegistrationRepository
                             .countByEmailVerifiedTrue();
+
+            totalAdmins =
+                    userRepository.countByRole(Role.ADMIN);
+
+            activeAdmins =
+                    userRepository.countByRoleAndStatus(
+                            Role.ADMIN,
+                            UserStatus.ACTIVE
+                    );
         } else
         {
             totalAlumni =
@@ -336,14 +347,7 @@ public class AdminService implements IAdminService
                             );
         }
 
-        long totalAdmins =
-                userRepository.countByRole(Role.ADMIN);
 
-        long activeAdmins =
-                userRepository.countByRoleAndStatus(
-                        Role.ADMIN,
-                        UserStatus.ACTIVE
-                );
 
         return AdminDashboardResponse.builder()
                 .totalAlumni(totalAlumni)
