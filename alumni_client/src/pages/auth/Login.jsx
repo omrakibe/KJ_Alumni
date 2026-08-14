@@ -16,7 +16,7 @@ import "../../styles/auth.css";
 function Login() {
   const navigate = useNavigate();
   const location = useLocation();
-
+ 
   const [formData, setFormData] = useState({
     email: location.state?.email || "",
     password: "",
@@ -226,9 +226,7 @@ function Login() {
           </div>
         )}
 
-        {/* =====================================
-            LOGIN CARD
-        ====================================== */}
+       
 
         <div className="login-card">
 
