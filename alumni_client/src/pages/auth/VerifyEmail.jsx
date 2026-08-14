@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import AuthLayout from "../../component/Auth/AuthLayout";
 import {
   MailCheck,
   ShieldCheck,
@@ -7,27 +8,17 @@ import {
   ArrowLeft,
 } from "lucide-react";
 
-import AuthLayout from "../../component/Auth/AuthLayout";
-
 import {
   verifyEmailOtp,
   resendOtp,
 } from "../../services/authService";
 
+
 function VerifyEmail() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  /*
-   * Email comes from Register.jsx through React Router state.
-   *
-   * Register sends:
-   * navigate("/verify-email", {
-   *   state: {
-   *     email: formData.email.trim(),
-   *   },
-   * });
-   */
+  // Email passed from Register page
   const email = location.state?.email || "";
 
   const [otp, setOtp] = useState("");
@@ -43,11 +34,10 @@ function VerifyEmail() {
     message: "",
   });
 
-  /*
-   * =========================================
-   * RESEND TIMER
-   * =========================================
-   */
+
+  // =========================================
+  // RESEND TIMER
+  // =========================================
 
   useEffect(() => {
     if (resendTimer <= 0) {
@@ -61,11 +51,10 @@ function VerifyEmail() {
     return () => clearInterval(timer);
   }, [resendTimer]);
 
-  /*
-   * =========================================
-   * FLASH MESSAGE
-   * =========================================
-   */
+
+  // =========================================
+  // FLASH MESSAGE
+  // =========================================
 
   const showFlash = (type, message) => {
     setFlash({
@@ -74,11 +63,10 @@ function VerifyEmail() {
     });
   };
 
-  /*
-   * =========================================
-   * OTP INPUT
-   * =========================================
-   */
+
+  // =========================================
+  // OTP INPUT
+  // =========================================
 
   const handleOtpChange = (event) => {
     const value = event.target.value.replace(/\D/g, "");
@@ -88,18 +76,11 @@ function VerifyEmail() {
     }
   };
 
-  /*
-   * =========================================
-   * VERIFY OTP
-   *
-   * POST /api/auth/verify-otp
-   *
-   * {
-   *   "email": "om@example.com",
-   *   "otp": "482731"
-   * }
-   * =========================================
-   */
+
+  // =========================================
+  // VERIFY OTP
+  // POST /api/auth/verify-otp
+  // =========================================
 
   const handleVerify = async (event) => {
     event.preventDefault();
@@ -138,19 +119,9 @@ function VerifyEmail() {
       if (response.success) {
         showFlash(
           "success",
-          response.message
+          response.message ||
+            "Email verified successfully."
         );
-
-        /*
-         * Backend response:
-         *
-         * {
-         *   "success": true,
-         *   "message":
-         *     "Email verified successfully. Your account is pending admin approval.",
-         *   "data": null
-         * }
-         */
 
         setTimeout(() => {
           navigate("/login", {
@@ -164,31 +135,30 @@ function VerifyEmail() {
         showFlash(
           "error",
           response.message ||
-          "Unable to verify the OTP."
+            "Unable to verify the OTP."
         );
       }
     } catch (error) {
+      console.error(
+        "VERIFY OTP ERROR:",
+        error
+      );
+
       showFlash(
         "error",
         error.response?.data?.message ||
-        "Unable to verify the OTP. Please try again."
+          "Unable to verify the OTP. Please try again."
       );
     } finally {
       setLoading(false);
     }
   };
 
-  /*
-   * =========================================
-   * RESEND OTP
-   *
-   * POST /api/auth/resend-otp
-   *
-   * {
-   *   "email": "om@example.com"
-   * }
-   * =========================================
-   */
+
+  // =========================================
+  // RESEND OTP
+  // POST /api/auth/resend-otp
+  // =========================================
 
   const handleResend = async () => {
     if (
@@ -214,7 +184,8 @@ function VerifyEmail() {
       if (response.success) {
         showFlash(
           "success",
-          response.message
+          response.message ||
+            "A new OTP has been sent."
         );
 
         setOtp("");
@@ -224,213 +195,228 @@ function VerifyEmail() {
         showFlash(
           "error",
           response.message ||
-          "Unable to resend OTP."
+            "Unable to resend OTP."
         );
       }
     } catch (error) {
+      console.error(
+        "RESEND OTP ERROR:",
+        error
+      );
+
       showFlash(
         "error",
         error.response?.data?.message ||
-        "Unable to resend OTP. Please try again."
+          "Unable to resend OTP. Please try again."
       );
     } finally {
       setResending(false);
     }
   };
 
-  /*
-   * =========================================
-   * UI
-   * =========================================
-   */
+
+  // =========================================
+  // UI
+  // =========================================
 
   return (
-    <AuthLayout>
-      <div className="verify-page">
+    <div className="verify-page">
 
-        {/* =====================================
-            HEADER
-        ====================================== */}
+      {/* =====================================
+          HEADER
+      ====================================== */}
 
-        <div className="verify-header">
+      <div className="verify-header">
 
-          <div className="verify-icon">
-            <MailCheck
-              size={30}
-              strokeWidth={1.8}
-            />
-          </div>
+        <div className="verify-icon">
+          <MailCheck
+            size={30}
+            strokeWidth={1.8}
+          />
+        </div>
 
-          <span className="verify-eyebrow">
-            EMAIL VERIFICATION
+        <span className="verify-eyebrow">
+          EMAIL VERIFICATION
+        </span>
+
+        <h1>
+          Verify your email
+        </h1>
+
+        <p>
+          We've sent a 6-digit verification
+          code to
+        </p>
+
+        <div className="verify-email">
+          {email || "your email address"}
+        </div>
+
+      </div>
+
+
+      {/* =====================================
+          FLASH MESSAGE
+      ====================================== */}
+
+      {flash.message && (
+        <div
+          className={`verify-flash ${
+            flash.type === "success"
+              ? "verify-flash-success"
+              : "verify-flash-error"
+          }`}
+        >
+          {flash.message}
+        </div>
+      )}
+
+
+      {/* =====================================
+          OTP CARD
+      ====================================== */}
+
+      <div className="verify-card">
+
+        <div className="verify-card-title">
+
+          <ShieldCheck
+            size={20}
+            strokeWidth={2}
+          />
+
+          <span>
+            Enter verification code
           </span>
-
-          <h1>
-            Verify your email
-          </h1>
-
-          <p>
-            We've sent a 6-digit verification
-            code to
-          </p>
-
-          <div className="verify-email">
-            {email || "your email address"}
-          </div>
 
         </div>
 
-        {/* =====================================
-            FLASH MESSAGE
-        ====================================== */}
 
-        {flash.message && (
-          <div
-            className={`verify-flash ${flash.type === "success"
-              ? "verify-flash-success"
-              : "verify-flash-error"
-              }`}
-          >
-            {flash.message}
-          </div>
-        )}
+        <p className="verify-card-description">
+          Enter the 6-digit OTP sent to your
+          registered email address.
+        </p>
 
-        {/* =====================================
-            OTP CARD
-        ====================================== */}
 
-        <div className="verify-card">
+        {/* ===================================
+            VERIFY FORM
+        ==================================== */}
 
-          <div className="verify-card-title">
+        <form
+          onSubmit={handleVerify}
+          className="verify-form"
+        >
 
-            <ShieldCheck
-              size={20}
-              strokeWidth={2}
-            />
+          <div className="verify-field">
 
-            <span>
-              Enter verification code
+            <label htmlFor="otp">
+              Verification Code
+            </label>
+
+            <div className="otp-wrapper">
+
+              <input
+                id="otp"
+                name="otp"
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={6}
+                value={otp}
+                onChange={handleOtpChange}
+                placeholder="000000"
+                disabled={loading}
+                autoFocus
+              />
+
+            </div>
+
+            <span className="otp-helper">
+              Enter all 6 digits
             </span>
 
           </div>
 
-          <p className="verify-card-description">
-            Enter the 6-digit OTP sent to your
-            registered email address.
+
+          <button
+            type="submit"
+            className="verify-button"
+            disabled={
+              loading ||
+              otp.length !== 6 ||
+              !email
+            }
+          >
+            {loading
+              ? "Verifying..."
+              : "Verify Email"}
+          </button>
+
+        </form>
+
+
+        {/* ===================================
+            RESEND OTP
+        ==================================== */}
+
+        <div className="resend-area">
+
+          <p>
+            Didn't receive the code?
           </p>
 
-          <form
-            onSubmit={handleVerify}
-            className="verify-form"
+          <button
+            type="button"
+            className="resend-button"
+            onClick={handleResend}
+            disabled={
+              resending ||
+              resendTimer > 0 ||
+              !email
+            }
           >
 
-            <div className="verify-field">
-
-              <label htmlFor="otp">
-                Verification Code
-              </label>
-
-              <div className="otp-wrapper">
-
-                <input
-                  id="otp"
-                  name="otp"
-                  type="text"
-                  inputMode="numeric"
-                  autoComplete="one-time-code"
-                  maxLength={6}
-                  value={otp}
-                  onChange={handleOtpChange}
-                  placeholder="000000"
-                  disabled={loading}
-                  autoFocus
-                />
-
-              </div>
-
-              <span className="otp-helper">
-                Enter all 6 digits
-              </span>
-
-            </div>
-
-            <button
-              type="submit"
-              className="verify-button"
-              disabled={
-                loading ||
-                otp.length !== 6 ||
-                !email
+            <RefreshCw
+              size={16}
+              className={
+                resending
+                  ? "spin"
+                  : ""
               }
-            >
-              {loading
-                ? "Verifying..."
-                : "Verify Email"}
-            </button>
+            />
 
-          </form>
+            {resending
+              ? "Sending..."
+              : resendTimer > 0
+                ? `Resend OTP in ${resendTimer}s`
+                : "Resend OTP"}
 
-          {/* ===================================
-              RESEND OTP
-          ==================================== */}
-
-          <div className="resend-area">
-
-            <p>
-              Didn't receive the code?
-            </p>
-
-            <button
-              type="button"
-              className="resend-button"
-              onClick={handleResend}
-              disabled={
-                resending ||
-                resendTimer > 0 ||
-                !email
-              }
-            >
-
-              <RefreshCw
-                size={16}
-                className={
-                  resending
-                    ? "spin"
-                    : ""
-                }
-              />
-
-              {resending
-                ? "Sending..."
-                : resendTimer > 0
-                  ? `Resend OTP in ${resendTimer}s`
-                  : "Resend OTP"}
-
-            </button>
-
-          </div>
+          </button>
 
         </div>
 
-        {/* =====================================
-            BACK TO REGISTRATION
-        ====================================== */}
-
-        <button
-          type="button"
-          className="verify-back-button"
-          onClick={() => navigate("/register")}
-        >
-
-          <ArrowLeft size={16} />
-
-          Back to registration
-
-        </button>
-
       </div>
-    </AuthLayout>
+
+
+      {/* =====================================
+          BACK TO REGISTRATION
+      ====================================== */}
+
+      <button
+        type="button"
+        className="verify-back-button"
+        onClick={() => navigate("/register")}
+      >
+
+        <ArrowLeft size={16} />
+
+        Back to registration
+
+      </button>
+
+    </div>
   );
 }
+
 
 export default VerifyEmail;

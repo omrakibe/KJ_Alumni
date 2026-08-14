@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+
 import {
   KeyRound,
   ShieldCheck,
@@ -8,25 +9,26 @@ import {
   EyeOff,
 } from "lucide-react";
 
-import AuthLayout from "../../component/Auth/AuthLayout";
 import { resetPassword } from "../../services/authService";
+
+import "./ResetPassword.css";
+
 
 function ResetPassword() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  /*
-   * resetRequestId comes from ForgotPassword.jsx
-   */
-  const resetRequestId =
-    location.state?.resetRequestId || "";
-
   const email =
-    location.state?.email || "";
+    location.state?.email ||
+    new URLSearchParams(location.search).get("email") ||
+    "";
 
-  const [otp, setOtp] = useState("");
-  const [newPassword, setNewPassword] =
-    useState("");
+  const token =
+    location.state?.token ||
+    new URLSearchParams(location.search).get("token") ||
+    "";
+
+  const [password, setPassword] = useState("");
 
   const [confirmPassword, setConfirmPassword] =
     useState("");
@@ -37,44 +39,54 @@ function ResetPassword() {
   const [showConfirmPassword, setShowConfirmPassword] =
     useState(false);
 
-  const [loading, setLoading] =
-    useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [flash, setFlash] = useState({
     type: "",
     message: "",
   });
 
-  /*
-   * =========================================
-   * OTP
-   * =========================================
-   */
 
-  const handleOtpChange = (event) => {
-    const value = event.target.value.replace(
-      /\D/g,
-      ""
-    );
+  // =========================================
+  // FLASH MESSAGE
+  // =========================================
 
-    if (value.length <= 6) {
-      setOtp(value);
-    }
+  const showFlash = (type, message) => {
+    setFlash({
+      type,
+      message,
+    });
   };
 
-  /*
-   * =========================================
-   * RESET PASSWORD
-   *
-   * POST /api/auth/reset-password
-   *
-   * {
-   *   "resetRequestId": "...",
-   *   "otp": "482731",
-   *   "newPassword": "NewPassword@123"
-   * }
-   * =========================================
-   */
+
+  // =========================================
+  // PASSWORD VALIDATION
+  // =========================================
+
+  const validatePassword = () => {
+    if (!password) {
+      return "Please enter a new password.";
+    }
+
+    if (password.length < 8) {
+      return "Password must contain at least 8 characters.";
+    }
+
+    if (!confirmPassword) {
+      return "Please confirm your password.";
+    }
+
+    if (password !== confirmPassword) {
+      return "Passwords do not match.";
+    }
+
+    return "";
+  };
+
+
+  // =========================================
+  // RESET PASSWORD
+  // =========================================
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -84,56 +96,23 @@ function ResetPassword() {
       message: "",
     });
 
-    /*
-     * resetRequestId is mandatory because it
-     * identifies the password reset request.
-     */
-    if (!resetRequestId) {
-      setFlash({
-        type: "error",
-        message:
-          "Password reset session is missing. Please request a new OTP.",
-      });
+    const validationError =
+      validatePassword();
+
+    if (validationError) {
+      showFlash(
+        "error",
+        validationError
+      );
 
       return;
     }
 
-    if (otp.length !== 6) {
-      setFlash({
-        type: "error",
-        message:
-          "Please enter the complete 6-digit OTP.",
-      });
-
-      return;
-    }
-
-    if (!newPassword) {
-      setFlash({
-        type: "error",
-        message:
-          "Please enter your new password.",
-      });
-
-      return;
-    }
-
-    if (newPassword.length < 8) {
-      setFlash({
-        type: "error",
-        message:
-          "Password must contain at least 8 characters.",
-      });
-
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      setFlash({
-        type: "error",
-        message:
-          "Passwords do not match.",
-      });
+    if (!email && !token) {
+      showFlash(
+        "error",
+        "Password reset information is missing. Please request a new reset link."
+      );
 
       return;
     }
@@ -141,342 +120,294 @@ function ResetPassword() {
     try {
       setLoading(true);
 
-      const response =
-        await resetPassword({
-          resetRequestId,
-          otp,
-          newPassword,
-        });
+      /*
+       * The service receives the available
+       * reset information.
+       *
+       * Your authService should match this
+       * structure with the backend API.
+       */
+
+      const response = await resetPassword({
+        email,
+        token,
+        password,
+        confirmPassword,
+      });
 
       if (response.success) {
-        setFlash({
-          type: "success",
-          message: response.message,
-        });
+        showFlash(
+          "success",
+          response.message ||
+            "Password reset successfully."
+        );
 
-        /*
-         * Give the user a moment to see the
-         * success flash before going to login.
-         */
         setTimeout(() => {
           navigate("/login", {
             state: {
-              message: response.message,
+              message:
+                response.message ||
+                "Password reset successfully. Please login.",
               email,
             },
           });
-        }, 1500);
+        }, 1800);
       } else {
-        setFlash({
-          type: "error",
-          message:
-            response.message ||
-            "Unable to reset your password.",
-        });
+        showFlash(
+          "error",
+          response.message ||
+            "Unable to reset password."
+        );
       }
     } catch (error) {
-      setFlash({
-        type: "error",
-        message:
-          error.response?.data?.message ||
-          "Unable to reset your password. Please try again.",
-      });
+      console.error(
+        "RESET PASSWORD ERROR:",
+        error
+      );
+
+      showFlash(
+        "error",
+        error.response?.data?.message ||
+          "Unable to reset password. Please try again."
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  /*
-   * =========================================
-   * UI
-   * =========================================
-   */
 
   return (
-    <AuthLayout>
-      <div className="reset-content">
+    <div className="reset-password-page">
 
-        {/* =====================================
-            HEADER
-        ====================================== */}
+      {/* =====================================
+          HEADER
+      ====================================== */}
 
-        <div className="reset-header">
+      <div className="reset-password-header">
 
-          <div className="reset-icon">
-            <KeyRound
-              size={30}
-              strokeWidth={1.8}
-            />
-          </div>
-
-          <span className="reset-eyebrow">
-            PASSWORD RECOVERY
-          </span>
-
-          <h1>
-            Reset your password
-          </h1>
-
-          <p>
-            Enter the OTP sent to your email
-            and create a new password.
-          </p>
-
-          {email && (
-            <div className="reset-email">
-              {email}
-            </div>
-          )}
-
+        <div className="reset-password-icon">
+          <KeyRound
+            size={30}
+            strokeWidth={1.8}
+          />
         </div>
 
-        {/* =====================================
-            FLASH MESSAGE
-        ====================================== */}
+        <span className="reset-password-eyebrow">
+          PASSWORD RESET
+        </span>
 
-        {flash.message && (
-          <div
-            className={`reset-flash ${flash.type === "success"
-              ? "reset-flash-success"
-              : "reset-flash-error"
-              }`}
-          >
-            {flash.message}
+        <h1>
+          Create a new password
+        </h1>
+
+        <p>
+          Choose a strong password for your
+          account.
+        </p>
+
+        {email && (
+          <div className="reset-password-email">
+            {email}
           </div>
         )}
 
-        {/* =====================================
-            RESET CARD
-        ====================================== */}
+      </div>
 
-        <div className="reset-card">
 
-          <div className="reset-card-title">
+      {/* =====================================
+          FLASH MESSAGE
+      ====================================== */}
 
-            <ShieldCheck
-              size={20}
-              strokeWidth={2}
-            />
+      {flash.message && (
+        <div
+          className={`reset-password-flash ${
+            flash.type === "success"
+              ? "reset-password-flash-success"
+              : "reset-password-flash-error"
+          }`}
+        >
+          {flash.message}
+        </div>
+      )}
 
-            <span>
-              Create a new password
-            </span>
 
-          </div>
+      {/* =====================================
+          CARD
+      ====================================== */}
 
-          <p className="reset-description">
-            Enter the 6-digit OTP and your new
-            password below.
-          </p>
+      <div className="reset-password-card">
 
-          <form
-            onSubmit={handleSubmit}
-            className="reset-form"
-          >
+        <div className="reset-password-card-title">
 
-            {/* =================================
-                OTP
-            ================================== */}
+          <ShieldCheck
+            size={20}
+            strokeWidth={2}
+          />
 
-            <div className="reset-field">
-
-              <label htmlFor="reset-otp">
-                Verification Code
-              </label>
-
-              <input
-                id="reset-otp"
-                type="text"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                maxLength={6}
-                value={otp}
-                onChange={handleOtpChange}
-                placeholder="000000"
-                disabled={loading}
-                autoFocus
-                className="reset-otp-input"
-              />
-
-              <span className="reset-helper">
-                Enter the 6-digit OTP sent to
-                your email.
-              </span>
-
-            </div>
-
-            {/* =================================
-                NEW PASSWORD
-            ================================== */}
-
-            <div className="reset-field">
-
-              <label htmlFor="new-password">
-                New Password
-              </label>
-
-              <div className="reset-password-wrapper">
-
-                <input
-                  id="new-password"
-                  type={
-                    showPassword
-                      ? "text"
-                      : "password"
-                  }
-                  value={newPassword}
-                  onChange={(event) =>
-                    setNewPassword(
-                      event.target.value
-                    )
-                  }
-                  placeholder="Enter new password"
-                  autoComplete="new-password"
-                  disabled={loading}
-                />
-
-                <button
-                  type="button"
-                  className="password-toggle"
-                  onClick={() =>
-                    setShowPassword(
-                      (previous) =>
-                        !previous
-                    )
-                  }
-                  disabled={loading}
-                  aria-label={
-                    showPassword
-                      ? "Hide password"
-                      : "Show password"
-                  }
-                >
-                  {showPassword ? (
-                    <EyeOff size={18} />
-                  ) : (
-                    <Eye size={18} />
-                  )}
-                </button>
-
-              </div>
-
-            </div>
-
-            {/* =================================
-                CONFIRM PASSWORD
-            ================================== */}
-
-            <div className="reset-field">
-
-              <label htmlFor="confirm-password">
-                Confirm Password
-              </label>
-
-              <div className="reset-password-wrapper">
-
-                <input
-                  id="confirm-password"
-                  type={
-                    showConfirmPassword
-                      ? "text"
-                      : "password"
-                  }
-                  value={confirmPassword}
-                  onChange={(event) =>
-                    setConfirmPassword(
-                      event.target.value
-                    )
-                  }
-                  placeholder="Confirm new password"
-                  autoComplete="new-password"
-                  disabled={loading}
-                />
-
-                <button
-                  type="button"
-                  className="password-toggle"
-                  onClick={() =>
-                    setShowConfirmPassword(
-                      (previous) =>
-                        !previous
-                    )
-                  }
-                  disabled={loading}
-                  aria-label={
-                    showConfirmPassword
-                      ? "Hide password"
-                      : "Show password"
-                  }
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff size={18} />
-                  ) : (
-                    <Eye size={18} />
-                  )}
-                </button>
-
-              </div>
-
-            </div>
-
-            {/* =================================
-                SUBMIT
-            ================================== */}
-
-            <button
-              type="submit"
-              className="reset-button"
-              disabled={loading}
-            >
-              {loading
-                ? "Resetting Password..."
-                : "Reset Password"}
-            </button>
-
-          </form>
-
-          {/* ===================================
-              LOGIN
-          ==================================== */}
-
-          <div className="reset-login">
-
-            <span>
-              Remember your password?
-            </span>
-
-            <button
-              type="button"
-              onClick={() =>
-                navigate("/login")
-              }
-            >
-              Sign in
-            </button>
-
-          </div>
+          <span>
+            Set new password
+          </span>
 
         </div>
 
-        {/* =====================================
-            BACK
-        ====================================== */}
 
-        <button
-          type="button"
-          className="reset-back-button"
-          onClick={() =>
-            navigate("/forgot-password")
-          }
+        <p className="reset-password-description">
+          Your new password should contain at
+          least 8 characters.
+        </p>
+
+
+        <form
+          onSubmit={handleSubmit}
+          className="reset-password-form"
         >
-          <ArrowLeft size={16} />
 
-          Back to forgot password
-        </button>
+          {/* =================================
+              NEW PASSWORD
+          ================================== */}
+
+          <div className="reset-password-field">
+
+            <label htmlFor="password">
+              New Password
+            </label>
+
+            <div className="password-input-wrapper">
+
+              <input
+                id="password"
+                name="password"
+                type={
+                  showPassword
+                    ? "text"
+                    : "password"
+                }
+                value={password}
+                onChange={(event) =>
+                  setPassword(
+                    event.target.value
+                  )
+                }
+                placeholder="Enter new password"
+                disabled={loading}
+                autoComplete="new-password"
+              />
+
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() =>
+                  setShowPassword(
+                    (previous) =>
+                      !previous
+                  )
+                }
+                tabIndex="-1"
+              >
+                {showPassword ? (
+                  <EyeOff size={18} />
+                ) : (
+                  <Eye size={18} />
+                )}
+              </button>
+
+            </div>
+
+          </div>
+
+
+          {/* =================================
+              CONFIRM PASSWORD
+          ================================== */}
+
+          <div className="reset-password-field">
+
+            <label htmlFor="confirmPassword">
+              Confirm Password
+            </label>
+
+            <div className="password-input-wrapper">
+
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type={
+                  showConfirmPassword
+                    ? "text"
+                    : "password"
+                }
+                value={confirmPassword}
+                onChange={(event) =>
+                  setConfirmPassword(
+                    event.target.value
+                  )
+                }
+                placeholder="Confirm new password"
+                disabled={loading}
+                autoComplete="new-password"
+              />
+
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() =>
+                  setShowConfirmPassword(
+                    (previous) =>
+                      !previous
+                  )
+                }
+                tabIndex="-1"
+              >
+                {showConfirmPassword ? (
+                  <EyeOff size={18} />
+                ) : (
+                  <Eye size={18} />
+                )}
+              </button>
+
+            </div>
+
+          </div>
+
+
+          {/* =================================
+              SUBMIT
+          ================================== */}
+
+          <button
+            type="submit"
+            className="reset-password-button"
+            disabled={loading}
+          >
+            {loading
+              ? "Resetting..."
+              : "Reset Password"}
+          </button>
+
+        </form>
 
       </div>
-    </AuthLayout>
+
+
+      {/* =====================================
+          BACK TO LOGIN
+      ====================================== */}
+
+      <button
+        type="button"
+        className="reset-password-back-button"
+        onClick={() => navigate("/login")}
+      >
+
+        <ArrowLeft size={16} />
+
+        Back to login
+
+      </button>
+
+    </div>
   );
 }
+
 
 export default ResetPassword;
