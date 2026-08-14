@@ -20,7 +20,7 @@ public class AdminDashboardResponse
 
     private long pendingRegistrations;
 
-    private long totalAdmins;
+    private Long totalAdmins;
 
-    private long activeAdmins;
+    private Long activeAdmins;
 }
