@@ -1,14 +1,20 @@
 package com.kjalumni.admin.controller;
 
 import com.kjalumni.admin.dto.AdminDashboardResponse;
+import com.kjalumni.admin.dto.AlumniListResponse;
 import com.kjalumni.admin.dto.CreateAdminRequest;
 import com.kjalumni.admin.dto.RejectRegistrationRequest;
 import com.kjalumni.auth.dto.PendingRegistrationResponse;
 import com.kjalumni.admin.service.IAdminService;
 import com.kjalumni.auth.entity.User;
+import com.kjalumni.common.enums.Branch;
+import com.kjalumni.common.enums.UserStatus;
 import com.kjalumni.common.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -41,7 +47,7 @@ public class AdminController
                 .timestamp(LocalDateTime.now())
                 .build();
     }
-    
+
     @GetMapping("/registrations")
     public ResponseEntity<ApiResponse<List<PendingRegistrationResponse>>>
     getVerifiedRegistrations()
@@ -148,6 +154,49 @@ public class AdminController
                 .success(true)
                 .message("Admin deleted successfully.")
                 .data(null)
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
+
+    //Alumni Management
+    @GetMapping("/alumni")
+    public ApiResponse<Page<AlumniListResponse>> getAllAlumni(
+
+            @AuthenticationPrincipal User currentUser,
+
+            @RequestParam(required = false)
+            String search,
+
+            @RequestParam(required = false)
+            Branch branch,
+
+            @RequestParam(required = false)
+            Integer passoutYear,
+
+            @RequestParam(required = false)
+            UserStatus status,
+
+            @PageableDefault(
+                    size = 10,
+                    sort = "firstName"
+            )
+            Pageable pageable
+    )
+    {
+        Page<AlumniListResponse> alumni =
+                adminService.getAllAlumni(
+                        currentUser,
+                        search,
+                        branch,
+                        passoutYear,
+                        status,
+                        pageable
+                );
+
+        return ApiResponse.<Page<AlumniListResponse>>builder()
+                .success(true)
+                .message("Alumni fetched successfully.")
+                .data(alumni)
                 .timestamp(LocalDateTime.now())
                 .build();
     }

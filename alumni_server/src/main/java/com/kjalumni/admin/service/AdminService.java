@@ -1,7 +1,9 @@
 package com.kjalumni.admin.service;
 
 import com.kjalumni.admin.dto.AdminDashboardResponse;
+import com.kjalumni.admin.dto.AlumniListResponse;
 import com.kjalumni.admin.dto.CreateAdminRequest;
+import com.kjalumni.admin.specification.AlumniSpecification;
 import com.kjalumni.alumni.entity.Alumni;
 import com.kjalumni.auth.dto.PendingRegistrationResponse;
 import com.kjalumni.auth.entity.PendingRegistration;
@@ -9,6 +11,7 @@ import com.kjalumni.auth.entity.User;
 import com.kjalumni.auth.repository.PendingRegistrationRepository;
 import com.kjalumni.auth.repository.UserRepository;
 import com.kjalumni.alumni.repository.AlumniRepository;
+import com.kjalumni.common.enums.Branch;
 import com.kjalumni.common.enums.Role;
 import com.kjalumni.common.enums.UserStatus;
 import com.kjalumni.common.exception.InvalidRequestException;
@@ -16,6 +19,9 @@ import com.kjalumni.common.exception.ResourceAlreadyExistsException;
 import com.kjalumni.common.exception.ResourceNotFoundException;
 import com.kjalumni.common.service.IEmailService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -282,7 +288,7 @@ public class AdminService implements IAdminService
         long activeAlumni;
         long suspendedAlumni;
         long pendingRegistrations;
-        Long totalAdmins=null;
+        Long totalAdmins = null;
         Long activeAdmins = null;
 
         if (isSuperAdmin)
@@ -348,7 +354,6 @@ public class AdminService implements IAdminService
         }
 
 
-
         return AdminDashboardResponse.builder()
                 .totalAlumni(totalAlumni)
                 .activeAlumni(activeAlumni)
@@ -357,6 +362,86 @@ public class AdminService implements IAdminService
                 .totalAdmins(totalAdmins)
                 .activeAdmins(activeAdmins)
                 .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<AlumniListResponse> getAllAlumni(
+            User currentUser,
+            String search,
+            Branch branch,
+            Integer passoutYear,
+            UserStatus status,
+            Pageable pageable
+    )
+    {
+        validateAdmin(currentUser);
+
+        Specification<Alumni> specification =
+                Specification.allOf(
+                        AlumniSpecification.search(search),
+                        AlumniSpecification.hasPassoutYear(passoutYear),
+                        AlumniSpecification.hasStatus(status)
+                );
+
+        /*
+         * Super Admin
+         * → can optionally filter by any branch.
+         *
+         * Branch Admin
+         * → branch is ALWAYS forced to their own branch.
+         */
+        if (currentUser.getBranch() != null)
+        {
+            specification =
+                    specification.and(
+                            AlumniSpecification.hasBranch(
+                                    currentUser.getBranch()
+                            )
+                    );
+        } else
+        {
+            specification =
+                    specification.and(
+                            AlumniSpecification.hasBranch(branch)
+                    );
+        }
+
+        return alumniRepository
+                .findAll(specification, pageable)
+                .map(this::mapToAlumniListResponse);
+    }
+
+    private AlumniListResponse mapToAlumniListResponse(
+            Alumni alumni
+    )
+    {
+        User user = alumni.getUser();
+
+        return AlumniListResponse.builder()
+                .id(alumni.getId())
+                .userId(user.getId())
+                .firstName(alumni.getFirstName())
+                .middleName(alumni.getMiddleName())
+                .lastName(alumni.getLastName())
+                .email(user.getEmail())
+                .contactNumber(alumni.getContactNumber())
+                .branch(alumni.getBranch())
+                .passoutYear(alumni.getPassoutYear())
+                .company(alumni.getCompany())
+                .jobRole(alumni.getJobRole())
+                .status(user.getStatus())
+                .build();
+    }
+
+    private void validateAdmin(User currentUser)
+    {
+        if (currentUser.getRole() != Role.ADMIN)
+        {
+            throw new AccessDeniedException(
+                    "Only admins can perform this action."
+            );
+        }
     }
 
     private PendingRegistrationResponse mapToResponse(
