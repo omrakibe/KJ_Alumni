@@ -1,0 +1,341 @@
+.alumni-management-page {
+  width: 100%;
+  padding: 30px;
+  box-sizing: border-box;
+}
+
+/* =========================================
+   HEADER
+========================================= */
+
+.alumni-management-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 24px;
+}
+
+.alumni-management-header h1 {
+  margin: 0;
+
+  color: #111827;
+
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.alumni-management-header p {
+  margin: 6px 0 0;
+
+  color: #6b7280;
+
+  font-size: 14px;
+}
+
+.alumni-count {
+  padding: 8px 14px;
+
+  border-radius: 20px;
+
+  background: #eef4ff;
+  color: #123b6d;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+
+/* =========================================
+   FILTER CARD
+========================================= */
+
+.alumni-filter-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  margin-bottom: 20px;
+  padding: 16px;
+
+  background: white;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+}
+
+
+/* =========================================
+   SEARCH
+========================================= */
+
+.alumni-search {
+  flex: 1;
+}
+
+.alumni-search input {
+  width: 100%;
+  box-sizing: border-box;
+
+  padding: 11px 14px;
+
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+
+  outline: none;
+
+  color: #111827;
+
+  font-size: 14px;
+}
+
+.alumni-search input:focus {
+  border-color: #123b6d;
+
+  box-shadow:
+    0 0 0 3px rgba(18, 59, 109, 0.08);
+}
+
+
+/* =========================================
+   FILTERS
+========================================= */
+
+.alumni-filter select {
+  min-width: 150px;
+
+  padding: 11px 35px 11px 12px;
+
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+
+  background: white;
+
+  color: #374151;
+
+  font-size: 14px;
+
+  outline: none;
+
+  cursor: pointer;
+}
+
+.alumni-filter select:focus {
+  border-color: #123b6d;
+}
+
+
+/* =========================================
+   CLEAR BUTTON
+========================================= */
+
+.clear-filter-button {
+  padding: 10px 14px;
+
+  border: none;
+  border-radius: 7px;
+
+  background: #f3f4f6;
+
+  color: #374151;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.clear-filter-button:hover {
+  background: #e5e7eb;
+}
+
+
+/* =========================================
+   TABLE CARD
+========================================= */
+
+.alumni-table-card {
+  width: 100%;
+
+  overflow: hidden;
+
+  background: white;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+}
+
+
+/* =========================================
+   TABLE
+========================================= */
+
+.alumni-table-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+}
+
+.alumni-table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  min-width: 700px;
+}
+
+.alumni-table thead {
+  background: #f9fafb;
+}
+
+.alumni-table th {
+  padding: 14px 16px;
+
+  border-bottom: 1px solid #e5e7eb;
+
+  color: #6b7280;
+
+  text-align: left;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  text-transform: uppercase;
+}
+
+.alumni-table td {
+  padding: 15px 16px;
+
+  border-bottom: 1px solid #f0f0f0;
+
+  color: #374151;
+
+  font-size: 14px;
+}
+
+.alumni-table tbody tr:hover {
+  background: #fafafa;
+}
+
+.alumni-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+
+/* =========================================
+   ALUMNI ID
+========================================= */
+
+.alumni-id {
+  color: #123b6d !important;
+
+  font-family: monospace;
+
+  font-weight: 600;
+}
+
+
+/* =========================================
+   NAME
+========================================= */
+
+.alumni-name {
+  color: #111827 !important;
+
+  font-weight: 600;
+}
+
+
+/* =========================================
+   STATUS
+========================================= */
+
+.status-badge {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 5px 10px;
+
+  border-radius: 20px;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.status-active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-suspended {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+
+/* =========================================
+   EMPTY STATE
+========================================= */
+
+.no-alumni {
+  padding: 40px !important;
+
+  text-align: center;
+
+  color: #9ca3af !important;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 900px) {
+
+  .alumni-filter-card {
+    flex-wrap: wrap;
+  }
+
+  .alumni-search {
+    flex-basis: 100%;
+  }
+
+  .alumni-filter {
+    flex: 1;
+  }
+
+  .alumni-filter select {
+    width: 100%;
+  }
+
+}
+
+
+@media (max-width: 600px) {
+
+  .alumni-management-page {
+    padding: 20px 15px;
+  }
+
+  .alumni-management-header {
+    align-items: flex-start;
+    gap: 15px;
+    flex-direction: column;
+  }
+
+  .alumni-filter-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .alumni-filter {
+    width: 100%;
+  }
+
+  .clear-filter-button {
+    width: 100%;
+  }
+
+}
