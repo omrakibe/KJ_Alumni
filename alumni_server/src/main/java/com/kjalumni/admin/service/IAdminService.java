@@ -1,9 +1,14 @@
 package com.kjalumni.admin.service;
 
 import com.kjalumni.admin.dto.AdminDashboardResponse;
+import com.kjalumni.admin.dto.AlumniListResponse;
 import com.kjalumni.admin.dto.CreateAdminRequest;
 import com.kjalumni.auth.dto.PendingRegistrationResponse;
 import com.kjalumni.auth.entity.User;
+import com.kjalumni.common.enums.Branch;
+import com.kjalumni.common.enums.UserStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.UUID;
@@ -27,4 +32,13 @@ public interface IAdminService
     void deleteAdmin(UUID adminId, User currentUser);
 
     AdminDashboardResponse getDashboard(User currentUser);
+
+    Page<AlumniListResponse> getAllAlumni(
+            User currentUser,
+            String search,
+            Branch branch,
+            Integer passoutYear,
+            UserStatus status,
+            Pageable pageable
+    );
 }
