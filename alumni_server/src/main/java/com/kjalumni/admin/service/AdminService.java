@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -107,10 +108,13 @@ public class AdminService implements IAdminService
 
         userRepository.save(user);
 
-        /*
-         * 2. Create Alumni
-         */
+        String alumniId = generateAlumniId(
+                pendingRegistration.getBranch(),
+                pendingRegistration.getPassoutYear()
+        );
+
         Alumni alumni = Alumni.builder()
+                .alumniId(alumniId)
                 .user(user)
                 .firstName(pendingRegistration.getFirstName())
                 .middleName(pendingRegistration.getMiddleName())
@@ -412,6 +416,44 @@ public class AdminService implements IAdminService
                 .map(this::mapToAlumniListResponse);
     }
 
+    private String generateAlumniId(
+            Branch branch,
+            Integer passoutYear
+    )
+    {
+
+        Optional<Alumni> latestAlumni =
+                alumniRepository
+                        .findTopByBranchAndPassoutYearOrderByAlumniIdDesc(
+                                branch,
+                                passoutYear
+                        );
+
+        int nextSequence = 1;
+
+        if (latestAlumni.isPresent())
+        {
+
+            String latestId = latestAlumni
+                    .get()
+                    .getAlumniId();
+
+            String[] parts = latestId.split("_");
+
+            int lastSequence =
+                    Integer.parseInt(parts[3]);
+
+            nextSequence = lastSequence + 1;
+        }
+
+        return String.format(
+                "KJ_%s_%d_%03d",
+                branch.name(),
+                passoutYear,
+                nextSequence
+        );
+    }
+
     private AlumniListResponse mapToAlumniListResponse(
             Alumni alumni
     )
@@ -420,6 +462,7 @@ public class AdminService implements IAdminService
 
         return AlumniListResponse.builder()
                 .id(alumni.getId())
+                .alumniId(alumni.getAlumniId())
                 .userId(user.getId())
                 .firstName(alumni.getFirstName())
                 .middleName(alumni.getMiddleName())

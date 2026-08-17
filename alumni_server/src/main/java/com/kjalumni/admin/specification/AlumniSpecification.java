@@ -32,6 +32,9 @@ public final class AlumniSpecification
             Join<Alumni, User> user =
                     root.join("user");
 
+            Expression<String> alumniId =
+                    cb.lower(root.get("alumniId"));
+
             Expression<String> firstName =
                     cb.lower(root.get("firstName"));
 
@@ -48,6 +51,7 @@ public final class AlumniSpecification
                     cb.lower(root.get("contactNumber"));
 
             return cb.or(
+                    cb.like(alumniId, value),
                     cb.like(firstName, value),
                     cb.like(middleName, value),
                     cb.like(lastName, value),
