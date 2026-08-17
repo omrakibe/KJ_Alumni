@@ -2,6 +2,7 @@ package com.kjalumni.alumni.repository;
 
 import com.kjalumni.alumni.entity.Alumni;
 import com.kjalumni.auth.entity.User;
+import com.kjalumni.common.enums.Branch;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
@@ -15,4 +16,8 @@ public interface AlumniRepository extends JpaRepository<Alumni, UUID>, JpaSpecif
 
     boolean existsByContactNumber(String contactNumber);
 
+    Optional<Alumni> findTopByBranchAndPassoutYearOrderByAlumniIdDesc(
+            Branch branch,
+            Integer passoutYear
+    );
 }

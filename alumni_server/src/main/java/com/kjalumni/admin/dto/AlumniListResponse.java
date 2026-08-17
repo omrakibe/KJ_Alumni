@@ -17,6 +17,8 @@ public class AlumniListResponse
 {
     private UUID id;
 
+    private String alumniId;
+
     private UUID userId;
 
     private String firstName;
