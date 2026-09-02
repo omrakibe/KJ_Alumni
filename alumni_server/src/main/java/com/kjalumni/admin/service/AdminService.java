@@ -2,6 +2,10 @@ package com.kjalumni.admin.service;
 
 import com.kjalumni.admin.dto.AdminDashboardResponse;
 import com.kjalumni.admin.dto.AlumniListResponse;
+import com.kjalumni.admin.dto.AlumniDetailResponse;
+import com.kjalumni.admin.dto.AlumniStatusUpdateRequest;
+import com.kjalumni.admin.dto.AlumniUpdateRequest;
+import com.kjalumni.admin.dto.AdminListResponse;
 import com.kjalumni.admin.dto.CreateAdminRequest;
 import com.kjalumni.admin.specification.AlumniSpecification;
 import com.kjalumni.alumni.entity.Alumni;
@@ -28,6 +32,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -44,11 +50,14 @@ public class AdminService implements IAdminService
 
     @Override
     @Transactional(readOnly = true)
-    public List<PendingRegistrationResponse> getVerifiedRegistrations()
+    public List<PendingRegistrationResponse> getVerifiedRegistrations(User currentUser)
     {
+        validateAdmin(currentUser);
+        List<PendingRegistration> registrations = currentUser.getBranch() == null
+                ? pendingRegistrationRepository.findByEmailVerifiedTrue()
+                : pendingRegistrationRepository.findByEmailVerifiedTrueAndBranch(currentUser.getBranch());
 
-        return pendingRegistrationRepository
-                .findByEmailVerifiedTrue()
+        return registrations
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
@@ -56,7 +65,7 @@ public class AdminService implements IAdminService
 
     @Override
     @Transactional
-    public void approveRegistration(UUID registrationId)
+    public void approveRegistration(UUID registrationId, User currentUser)
     {
 
         PendingRegistration pendingRegistration =
@@ -66,6 +75,8 @@ public class AdminService implements IAdminService
                                 new ResourceNotFoundException(
                                         "Registration not found."
                                 ));
+
+        validateRegistrationAccess(pendingRegistration, currentUser);
 
         // Email must be verified before admin approval
         if (!pendingRegistration.isEmailVerified())
@@ -147,7 +158,8 @@ public class AdminService implements IAdminService
     @Transactional
     public void rejectRegistration(
             UUID registrationId,
-            String reason)
+            String reason,
+            User currentUser)
     {
 
         PendingRegistration pendingRegistration =
@@ -157,6 +169,8 @@ public class AdminService implements IAdminService
                                 new ResourceNotFoundException(
                                         "Registration not found."
                                 ));
+
+        validateRegistrationAccess(pendingRegistration, currentUser);
 
         if (!pendingRegistration.isEmailVerified())
         {
@@ -213,12 +227,19 @@ public class AdminService implements IAdminService
 
     @Override
     @Transactional(readOnly = true)
-    public List<User> getAllAdmins(User currentUser)
+    public List<AdminListResponse> getAllAdmins(User currentUser)
     {
 
         validateSuperAdmin(currentUser);
 
-        return userRepository.findAllByRole(Role.ADMIN);
+        return userRepository.findAllByRole(Role.ADMIN).stream()
+                .map(admin -> AdminListResponse.builder()
+                        .id(admin.getId())
+                        .email(admin.getEmail())
+                        .branch(admin.getBranch())
+                        .status(admin.getStatus())
+                        .build())
+                .toList();
     }
 
     @Override
@@ -292,6 +313,8 @@ public class AdminService implements IAdminService
         long activeAlumni;
         long suspendedAlumni;
         long pendingRegistrations;
+        long branchAlumni;
+        long branchPendingRegistrations;
         Long totalAdmins = null;
         Long activeAdmins = null;
 
@@ -324,6 +347,8 @@ public class AdminService implements IAdminService
                             Role.ADMIN,
                             UserStatus.ACTIVE
                     );
+            branchAlumni = totalAlumni;
+            branchPendingRegistrations = pendingRegistrations;
         } else
         {
             totalAlumni =
@@ -355,6 +380,8 @@ public class AdminService implements IAdminService
                             .countByEmailVerifiedTrueAndBranch(
                                     currentUser.getBranch()
                             );
+            branchAlumni = totalAlumni;
+            branchPendingRegistrations = pendingRegistrations;
         }
 
 
@@ -365,6 +392,10 @@ public class AdminService implements IAdminService
                 .pendingRegistrations(pendingRegistrations)
                 .totalAdmins(totalAdmins)
                 .activeAdmins(activeAdmins)
+                .branchAlumni(branchAlumni)
+                .branchPendingRegistrations(branchPendingRegistrations)
+                .alumniByBranch(isSuperAdmin ? mapBranchCounts() : Map.of(currentUser.getBranch().name(), totalAlumni))
+                .alumniByPassoutYear(mapPassoutYearCounts(currentUser))
                 .build();
     }
 
@@ -414,6 +445,54 @@ public class AdminService implements IAdminService
         return alumniRepository
                 .findAll(specification, pageable)
                 .map(this::mapToAlumniListResponse);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AlumniDetailResponse getAlumni(UUID alumniId, User currentUser)
+    {
+        return mapToAlumniDetailResponse(findAuthorizedAlumni(alumniId, currentUser));
+    }
+
+    @Override
+    @Transactional
+    public AlumniDetailResponse updateAlumni(UUID alumniId, AlumniUpdateRequest request, User currentUser)
+    {
+        Alumni alumni = findAuthorizedAlumni(alumniId, currentUser);
+        if (currentUser.getBranch() != null && request.getBranch() != currentUser.getBranch())
+        {
+            throw new AccessDeniedException("Branch admins cannot move alumni to another branch.");
+        }
+        if (!alumni.getContactNumber().equals(request.getContactNumber())
+                && alumniRepository.existsByContactNumber(request.getContactNumber()))
+        {
+            throw new ResourceAlreadyExistsException("Contact number is already registered.");
+        }
+        alumni.setFirstName(request.getFirstName());
+        alumni.setMiddleName(request.getMiddleName());
+        alumni.setLastName(request.getLastName());
+        alumni.setBranch(request.getBranch());
+        alumni.setPassoutYear(request.getPassoutYear());
+        alumni.getUser().setBranch(request.getBranch());
+        alumni.setContactNumber(request.getContactNumber());
+        alumni.setCompany(request.getCompany());
+        alumni.setJobRole(request.getJobRole());
+        alumni.setCurrentPackage(request.getCurrentPackage());
+        alumni.setExperience(request.getExperience());
+        return mapToAlumniDetailResponse(alumniRepository.save(alumni));
+    }
+
+    @Override
+    @Transactional
+    public AlumniDetailResponse updateAlumniStatus(UUID alumniId, AlumniStatusUpdateRequest request, User currentUser)
+    {
+        if (request.getStatus() != UserStatus.ACTIVE && request.getStatus() != UserStatus.SUSPENDED)
+        {
+            throw new InvalidRequestException("Alumni status must be ACTIVE or SUSPENDED.");
+        }
+        Alumni alumni = findAuthorizedAlumni(alumniId, currentUser);
+        alumni.getUser().setStatus(request.getStatus());
+        return mapToAlumniDetailResponse(alumni);
     }
 
     private String generateAlumniId(
@@ -475,6 +554,61 @@ public class AdminService implements IAdminService
                 .jobRole(alumni.getJobRole())
                 .status(user.getStatus())
                 .build();
+    }
+
+    private AlumniDetailResponse mapToAlumniDetailResponse(Alumni alumni)
+    {
+        User user = alumni.getUser();
+        return AlumniDetailResponse.builder()
+                .id(alumni.getId()).alumniId(alumni.getAlumniId())
+                .firstName(alumni.getFirstName()).middleName(alumni.getMiddleName())
+                .lastName(alumni.getLastName()).email(user.getEmail())
+                .contactNumber(alumni.getContactNumber()).dob(alumni.getDob())
+                .branch(alumni.getBranch()).passoutYear(alumni.getPassoutYear())
+                .company(alumni.getCompany()).jobRole(alumni.getJobRole())
+                .currentPackage(alumni.getCurrentPackage()).experience(alumni.getExperience())
+                .status(user.getStatus()).build();
+    }
+
+    private Alumni findAuthorizedAlumni(UUID alumniId, User currentUser)
+    {
+        validateAdmin(currentUser);
+        Optional<Alumni> alumni = currentUser.getBranch() == null
+                ? alumniRepository.findById(alumniId)
+                : alumniRepository.findByIdAndUser_Branch(alumniId, currentUser.getBranch());
+        return alumni.orElseThrow(() -> new ResourceNotFoundException("Alumni not found."));
+    }
+
+    private void validateRegistrationAccess(PendingRegistration registration, User currentUser)
+    {
+        validateAdmin(currentUser);
+        if (currentUser.getBranch() != null && registration.getBranch() != currentUser.getBranch())
+        {
+            throw new AccessDeniedException("You are not authorized to manage registrations from this branch.");
+        }
+    }
+
+    private Map<String, Long> mapBranchCounts()
+    {
+        Map<String, Long> counts = new LinkedHashMap<>();
+        alumniRepository.countGroupedByBranch().forEach(row -> counts.put(((Branch) row[0]).name(), (Long) row[1]));
+        return counts;
+    }
+
+    private Map<Integer, Long> mapPassoutYearCounts(User currentUser)
+    {
+        Map<Integer, Long> counts = new LinkedHashMap<>();
+        if (currentUser.getBranch() == null)
+        {
+            alumniRepository.countGroupedByPassoutYear()
+                    .forEach(row -> counts.put((Integer) row[0], (Long) row[1]));
+        }
+        else
+        {
+            alumniRepository.countGroupedByBranchAndPassoutYear(currentUser.getBranch())
+                    .forEach(row -> counts.put((Integer) row[0], (Long) row[1]));
+        }
+        return counts;
     }
 
     private void validateAdmin(User currentUser)

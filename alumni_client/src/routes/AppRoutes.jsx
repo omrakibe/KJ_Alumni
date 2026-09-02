@@ -12,6 +12,10 @@ import AlumniDashboard from "../pages/alumni/AlumniDashboard";
 
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import AlumniManagement from "../pages/admin/AlumniManagement";
+import Registrations from "../pages/admin/Registrations/Registrations";
+import AdminManagement from "../pages/admin/AdminManagement";
+import ProtectedRoute from "./ProtectedRoute";
+import SuperAdminRoute from "./SuperAdminRoute";
 
 
 function AppRoutes() {
@@ -74,13 +78,17 @@ function AppRoutes() {
 
       <Route
         path="/admin/dashboard"
-        element={<AdminDashboard />}
+        element={<ProtectedRoute allowedRole="ADMIN"><AdminDashboard /></ProtectedRoute>}
       />
 
       <Route
         path="/admin/alumni"
-        element={<AlumniManagement />}
+        element={<ProtectedRoute allowedRole="ADMIN"><AlumniManagement /></ProtectedRoute>}
       />
+
+      <Route path="/admin/registrations" element={<ProtectedRoute allowedRole="ADMIN"><Registrations /></ProtectedRoute>} />
+
+      <Route path="/admin/admins" element={<SuperAdminRoute><AdminManagement /></SuperAdminRoute>} />
 
     </Routes>
   );

@@ -21,6 +21,8 @@ public interface PendingRegistrationRepository extends JpaRepository<PendingRegi
 
     List<PendingRegistration> findByEmailVerifiedTrue();
 
+    List<PendingRegistration> findByEmailVerifiedTrueAndBranch(Branch branch);
+
     long countByEmailVerifiedTrue();
 
     long countByEmailVerifiedTrueAndBranch(Branch branch);

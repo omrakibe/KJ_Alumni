@@ -2,7 +2,11 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 function SuperAdminRoute({ children }) {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loadingUser } = useAuth();
+
+  if (loadingUser) {
+    return null;
+  }
 
   // Not logged in
   if (!isAuthenticated) {

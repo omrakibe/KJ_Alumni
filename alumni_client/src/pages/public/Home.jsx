@@ -1,162 +1,26 @@
+import { ArrowRight, Award, BriefcaseBusiness, CalendarDays, Globe2, GraduationCap, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
+import campusImage from "../../assets/kjcoemr.webp";
 import "./Home.css";
 
 function Home() {
-  return (
-    <div className="home">
+  return <div className="home">
+    <nav className="public-nav"><div className="container public-nav-inner"><Link to="/" className="public-brand"><span className="public-brand-mark">KJ</span><span>KJCOEMR <small>Alumni Network</small></span></Link><div className="public-nav-links"><a href="#community">Community</a><a href="#why-join">Why join</a><Link to="/login">Sign in</Link><Link to="/register" className="public-nav-cta">Join the network <ArrowRight size={16} /></Link></div></div></nav>
 
-      {/* Navbar */}
-      <nav className="navbar">
-        <div className="container navbar-container">
+    <main>
+      <section className="public-hero"><img src={campusImage} alt="KJCOEMR campus" className="public-hero-image" /><div className="public-hero-overlay" /><div className="container public-hero-content"><div className="public-hero-copy"><p className="public-eyebrow"><Sparkles size={14} /> KJCOEMR Alumni Association</p><h1>Stay connected to the people who shaped your journey.</h1><p>One trusted place for KJCOEMR alumni to reconnect, share opportunities and celebrate what comes next.</p><div className="public-hero-actions"><Link to="/register" className="public-button public-button-primary">Join alumni network <ArrowRight size={18} /></Link><Link to="/login" className="public-button public-button-secondary">Alumni sign in</Link></div></div><div className="public-hero-card"><span>One community</span><strong>Built for every chapter after college.</strong><div><GraduationCap size={20} /><p>Reconnect with your KJCOEMR community and continue your story.</p></div></div></div></section>
 
-          <Link to="/" className="logo">
-            KJCOEMR Alumni
-          </Link>
+      <section className="public-trust-bar" id="community"><div className="container public-trust-grid"><Trust icon={<Globe2 size={21} />} title="Meaningful connections" text="Meet fellow alumni across branches and graduating batches." /><Trust icon={<BriefcaseBusiness size={21} />} title="Career momentum" text="Share opportunities, advice and professional wins." /><Trust icon={<CalendarDays size={21} />} title="Campus community" text="Keep up with reunions and college-led initiatives." /></div></section>
 
-          <div className="nav-links">
-            <Link to="/">Home</Link>
-            <Link to="/events">Events</Link>
-            <Link to="/stories">Success Stories</Link>
-            <Link to="/gallery">Gallery</Link>
-            <Link to="/login" className="login-btn">
-              Login
-            </Link>
-          </div>
+      <section className="public-story" id="why-join"><div className="container public-story-grid"><div><p className="public-section-label">More than a directory</p><h2>Your KJCOEMR connection continues long after graduation.</h2></div><div><p>The alumni portal brings the college community together through shared experiences, professional support and opportunities to give back.</p><Link to="/register" className="public-text-link">Create your alumni profile <ArrowRight size={16} /></Link></div></div></section>
 
-        </div>
-      </nav>
+      <section className="public-cta"><div className="container public-cta-inner"><div><p className="public-eyebrow"><Award size={14} /> KJCOEMR alumni network</p><h2>Ready to be part of the next chapter?</h2><p>Register your profile and join the growing alumni community.</p></div><Link to="/register" className="public-button public-button-light">Register now <ArrowRight size={18} /></Link></div></section>
+    </main>
 
-
-      {/* Hero Section */}
-      <section className="hero">
-        <div className="container hero-content">
-
-          <div className="hero-text">
-            <p className="hero-label">
-              KJCOEMR Alumni Association
-            </p>
-
-            <h1>
-              Connecting Alumni,
-              <span> Celebrating Success.</span>
-            </h1>
-
-            <p className="hero-description">
-              A connected community of KJCOEMR alumni,
-              building relationships, sharing achievements
-              and creating opportunities for the future.
-            </p>
-
-            <div className="hero-buttons">
-              <Link to="/register" className="primary-btn">
-                Join Alumni Network
-              </Link>
-
-              <Link to="/login" className="secondary-btn">
-                Alumni Login
-              </Link>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-
-      {/* Statistics */}
-      <section className="statistics">
-        <div className="container statistics-grid">
-
-          <div className="stat-card">
-            <h2>12,500+</h2>
-            <p>Verified Alumni</p>
-          </div>
-
-          <div className="stat-card">
-            <h2>850+</h2>
-            <p>Companies</p>
-          </div>
-
-          <div className="stat-card">
-            <h2>35+</h2>
-            <p>Countries</p>
-          </div>
-
-          <div className="stat-card">
-            <h2>46+</h2>
-            <p>Success Stories</p>
-          </div>
-
-        </div>
-      </section>
-
-
-      {/* About */}
-      <section className="about">
-        <div className="container about-content">
-
-          <div>
-            <p className="section-label">
-              ABOUT US
-            </p>
-
-            <h2>
-              Building a stronger alumni community
-            </h2>
-          </div>
-
-          <p>
-            The KJCOEMR Alumni Portal provides a centralized
-            platform where alumni can stay connected with the
-            college, participate in events, share achievements
-            and contribute to the growth of future generations.
-          </p>
-
-        </div>
-      </section>
-
-
-      {/* CTA */}
-      <section className="cta">
-        <div className="container">
-
-          <h2>
-            Are you a KJCOEMR Alumni?
-          </h2>
-
-          <p>
-            Join the alumni network and stay connected
-            with your college community.
-          </p>
-
-          <Link to="/register" className="primary-btn">
-            Register Now
-          </Link>
-
-        </div>
-      </section>
-
-
-      {/* Footer */}
-      <footer className="footer">
-        <div className="container footer-content">
-
-          <div>
-            <h3>KJCOEMR Alumni</h3>
-            <p>
-              Connecting Alumni, Celebrating Success,
-              Building the Future.
-            </p>
-          </div>
-
-          <p>
-            © 2026 KJCOEMR Alumni Association
-          </p>
-
-        </div>
-      </footer>
-
-    </div>
-  );
+    <footer className="public-footer"><div className="container public-footer-inner"><div className="public-brand"><span className="public-brand-mark">KJ</span><span>KJCOEMR <small>Alumni Network</small></span></div><p>© 2026 KJCOEMR Alumni Association</p></div></footer>
+  </div>;
 }
+
+function Trust({ icon, title, text }) { return <article className="public-trust-card"><div>{icon}</div><h3>{title}</h3><p>{text}</p></article>; }
 
 export default Home;

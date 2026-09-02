@@ -1,517 +1,110 @@
-import { useEffect, useState } from "react";
-import {
-  createBranchAdmin,
-  getAllAdmins,
-  deleteAdmin,
-} from "../../services/adminService";
-
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { createBranchAdmin, deleteAdmin, getAllAdmins } from "../../services/adminService";
 import "./AdminManagement.css";
+
+const branches = [
+  ["COMP", "Computer Engineering"],
+  ["ENTC", "Electronics & Telecommunication"],
+  ["VLSI", "VLSI"],
+  ["ADVENTC", "Advanced ENTC"],
+  ["MECH", "Mechanical Engineering"],
+  ["CIVIL", "Civil Engineering"],
+  ["ELECTRICAL", "Electrical Engineering"],
+];
 
 function AdminManagement() {
   const [admins, setAdmins] = useState([]);
-
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    branch: "",
-  });
-
+  const [formData, setFormData] = useState({ email: "", password: "", branch: "" });
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
-
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-
-  // =========================
-  // GET ALL ADMINS
-  // =========================
 
   const loadAdmins = async () => {
     try {
       setLoading(true);
       setError("");
-
       const response = await getAllAdmins();
-
-      console.log("ADMINS RESPONSE:", response);
-
-      if (response.success) {
-        setAdmins(response.data || []);
-      } else {
-        setError(
-          response.message || "Failed to load admins."
-        );
-      }
-    } catch (error) {
-      console.error("GET ADMINS ERROR:", error);
-
-      setError(
-        error.response?.data?.message ||
-          "Failed to load administrators."
-      );
+      setAdmins(response.data || []);
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || "Failed to load administrators.");
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => { loadAdmins(); }, []);
 
-  // =========================
-  // LOAD ADMINS ON PAGE LOAD
-  // =========================
+  const filteredAdmins = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    if (!query) return admins;
+    return admins.filter((admin) => admin.email?.toLowerCase().includes(query) || admin.branch?.toLowerCase().includes(query));
+  }, [admins, search]);
 
-  useEffect(() => {
-    loadAdmins();
-  }, []);
+  const branchAdmins = admins.filter((admin) => admin.branch).length;
+  const activeAdmins = admins.filter((admin) => admin.status === "ACTIVE").length;
 
-
-  // =========================
-  // HANDLE FORM INPUT
-  // =========================
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    setFormData((previous) => ({
-      ...previous,
-      [name]: value,
-    }));
-  };
-
-
-  // =========================
-  // CREATE BRANCH ADMIN
-  // =========================
-
-  const handleCreateAdmin = async (e) => {
-    e.preventDefault();
-
-    setError("");
-    setSuccess("");
-    setCreating(true);
-
+  const handleCreateAdmin = async (event) => {
+    event.preventDefault();
     try {
-      const response = await createBranchAdmin({
-        email: formData.email.trim(),
-        password: formData.password,
-        branch: formData.branch,
-      });
-
-      console.log(
-        "CREATE ADMIN RESPONSE:",
-        response
-      );
-
-      if (response.success) {
-        setSuccess(
-          "Branch Admin created successfully."
-        );
-
-        // Clear form
-        setFormData({
-          email: "",
-          password: "",
-          branch: "",
-        });
-
-        // Refresh admin list
-        await loadAdmins();
-      } else {
-        setError(
-          response.message ||
-            "Failed to create Branch Admin."
-        );
-      }
-    } catch (error) {
-      console.error(
-        "CREATE ADMIN ERROR:",
-        error
-      );
-
-      setError(
-        error.response?.data?.message ||
-          "Failed to create Branch Admin."
-      );
+      setCreating(true);
+      setError("");
+      setSuccess("");
+      const response = await createBranchAdmin({ ...formData, email: formData.email.trim() });
+      setSuccess(response.message || "Branch administrator created successfully.");
+      setFormData({ email: "", password: "", branch: "" });
+      await loadAdmins();
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || "Failed to create the branch administrator.");
     } finally {
       setCreating(false);
     }
   };
 
-
-  // =========================
-  // DELETE ADMIN
-  // =========================
-
-  const handleDeleteAdmin = async (
-    adminId,
-    email
-  ) => {
-    const confirmed = window.confirm(
-      `Are you sure you want to delete ${email}?`
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
-    setError("");
-    setSuccess("");
-    setDeletingId(adminId);
-
+  const handleDeleteAdmin = async (admin) => {
+    if (!window.confirm(`Delete the administrator account for ${admin.email}? This cannot be undone.`)) return;
     try {
-      const response = await deleteAdmin(adminId);
-
-      console.log(
-        "DELETE ADMIN RESPONSE:",
-        response
-      );
-
-      if (response.success) {
-        setSuccess(
-          "Admin deleted successfully."
-        );
-
-        await loadAdmins();
-      } else {
-        setError(
-          response.message ||
-            "Failed to delete admin."
-        );
-      }
-    } catch (error) {
-      console.error(
-        "DELETE ADMIN ERROR:",
-        error
-      );
-
-      setError(
-        error.response?.data?.message ||
-          "Failed to delete admin."
-      );
+      setDeletingId(admin.id);
+      setError("");
+      setSuccess("");
+      const response = await deleteAdmin(admin.id);
+      setSuccess(response.message || "Administrator deleted successfully.");
+      await loadAdmins();
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || "Failed to delete the administrator.");
     } finally {
       setDeletingId(null);
     }
   };
 
-
-  return (
-    <div className="admin-management-page">
-
-      {/* =========================
-          PAGE HEADER
-      ========================= */}
-
-      <div className="page-header">
-
-        <div>
-          <h1>Admin Management</h1>
-
-          <p>
-            Create and manage branch administrators.
-          </p>
-        </div>
-
-      </div>
-
-
-      {/* =========================
-          SUCCESS MESSAGE
-      ========================= */}
-
-      {success && (
-        <div className="success-message">
-          {success}
-        </div>
-      )}
-
-
-      {/* =========================
-          ERROR MESSAGE
-      ========================= */}
-
-      {error && (
-        <div className="error-message">
-          {error}
-        </div>
-      )}
-
-
-      {/* =========================
-          CREATE BRANCH ADMIN
-      ========================= */}
-
-      <div className="admin-management-card">
-
-        <div className="card-title">
-
-          <h2>
-            Create Branch Admin
-          </h2>
-
-          <p>
-            Create an administrator for a specific
-            department.
-          </p>
-
-        </div>
-
-
-        <form
-          className="create-admin-form"
-          onSubmit={handleCreateAdmin}
-        >
-
-          {/* Email */}
-
-          <div className="form-group">
-
-            <label htmlFor="email">
-              Email
-            </label>
-
-            <input
-              id="email"
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="compadmin@kjei.edu.in"
-              required
-            />
-
-          </div>
-
-
-          {/* Password */}
-
-          <div className="form-group">
-
-            <label htmlFor="password">
-              Password
-            </label>
-
-            <input
-              id="password"
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Enter password"
-              minLength={8}
-              required
-            />
-
-          </div>
-
-
-          {/* Branch */}
-
-          <div className="form-group">
-
-            <label htmlFor="branch">
-              Branch
-            </label>
-
-            <select
-              id="branch"
-              name="branch"
-              value={formData.branch}
-              onChange={handleChange}
-              required
-            >
-
-              <option value="">
-                Select Branch
-              </option>
-
-              <option value="COMP">
-                Computer Engineering
-              </option>
-
-              <option value="IT">
-                Information Technology
-              </option>
-
-              <option value="ENTC">
-                Electronics & Telecommunication
-              </option>
-
-              <option value="MECH">
-                Mechanical Engineering
-              </option>
-
-              <option value="CIVIL">
-                Civil Engineering
-              </option>
-
-            </select>
-
-          </div>
-
-
-          {/* Submit */}
-
-          <button
-            type="submit"
-            className="create-admin-button"
-            disabled={creating}
-          >
-
-            {creating
-              ? "Creating..."
-              : "Create Branch Admin"}
-
-          </button>
-
-        </form>
-
-      </div>
-
-
-      {/* =========================
-          ADMIN LIST
-      ========================= */}
-
-      <div className="admin-management-card">
-
-        <div className="card-title">
-
-          <h2>
-            All Administrators
-          </h2>
-
-          <p>
-            View all active administrators and
-            their assigned branches.
-          </p>
-
-        </div>
-
-
-        {/* Loading */}
-
-        {loading && (
-          <div className="loading-state">
-            Loading administrators...
-          </div>
-        )}
-
-
-        {/* Empty */}
-
-        {!loading && admins.length === 0 && (
-          <div className="empty-state">
-            No administrators found.
-          </div>
-        )}
-
-
-        {/* Admin List */}
-
-        {!loading && admins.length > 0 && (
-
-          <div className="admin-list">
-
-            {admins.map((admin) => {
-
-              const isSuperAdmin =
-                admin.branch === null ||
-                admin.branch === undefined;
-
-              return (
-                <div
-                  className="admin-item"
-                  key={admin.id}
-                >
-
-                  {/* Admin Information */}
-
-                  <div className="admin-info">
-
-                    <div className="admin-avatar">
-                      {admin.email
-                        ?.charAt(0)
-                        ?.toUpperCase()}
-                    </div>
-
-
-                    <div>
-
-                      <strong>
-                        {admin.email}
-                      </strong>
-
-                      <div className="admin-details">
-
-                        <span>
-                          Role: {admin.role}
-                        </span>
-
-                        <span>
-                          Branch:{" "}
-                          {isSuperAdmin
-                            ? "Super Admin"
-                            : admin.branch}
-                        </span>
-
-                        <span>
-                          Status: {admin.status}
-                        </span>
-
-                      </div>
-
-                    </div>
-
-                  </div>
-
-
-                  {/* Action */}
-
-                  <div className="admin-actions">
-
-                    {/* 
-                      Never show delete for
-                      Super Admin
-                    */}
-
-                    {!isSuperAdmin && (
-
-                      <button
-                        type="button"
-                        className="delete-admin-button"
-                        disabled={
-                          deletingId === admin.id
-                        }
-                        onClick={() =>
-                          handleDeleteAdmin(
-                            admin.id,
-                            admin.email
-                          )
-                        }
-                      >
-
-                        {deletingId === admin.id
-                          ? "Deleting..."
-                          : "Delete"}
-
-                      </button>
-
-                    )}
-
-                  </div>
-
-                </div>
-              );
-            })}
-
-          </div>
-
-        )}
-
-      </div>
-
-    </div>
-  );
+  return <div className="super-admin-page">
+    <header className="super-admin-header"><div><Link to="/admin/dashboard" className="admin-back-link">← Back to Dashboard</Link><h1>Admin Management</h1><p>Create and manage branch administrator accounts.</p></div><button type="button" className="admin-refresh-button" onClick={loadAdmins} disabled={loading}>Refresh</button></header>
+
+    {success && <div className="admin-alert admin-alert-success">{success}</div>}
+    {error && <div className="admin-alert admin-alert-error">{error}</div>}
+
+    <section className="admin-summary-grid"><SummaryCard label="Total administrators" value={admins.length} /><SummaryCard label="Branch administrators" value={branchAdmins} /><SummaryCard label="Active administrators" value={activeAdmins} /></section>
+
+    <section className="super-admin-card"><div className="super-admin-card-title"><div><h2>Create Branch Administrator</h2><p>New administrators are immediately active and limited to their assigned branch.</p></div></div>
+      <form className="admin-create-form" onSubmit={handleCreateAdmin}>
+        <label>Email<input type="email" value={formData.email} onChange={(event) => setFormData((current) => ({ ...current, email: event.target.value }))} placeholder="admin@college.edu" required /></label>
+        <label>Temporary password<input type="password" value={formData.password} onChange={(event) => setFormData((current) => ({ ...current, password: event.target.value }))} placeholder="Minimum 8 characters" minLength="8" required /></label>
+        <label>Assigned branch<select value={formData.branch} onChange={(event) => setFormData((current) => ({ ...current, branch: event.target.value }))} required><option value="">Select branch</option>{branches.map(([code, label]) => <option key={code} value={code}>{label} ({code})</option>)}</select></label>
+        <button type="submit" className="admin-create-button" disabled={creating}>{creating ? "Creating…" : "Create administrator"}</button>
+      </form>
+    </section>
+
+    <section className="super-admin-card"><div className="super-admin-list-header"><div><h2>Administrators</h2><p>{filteredAdmins.length} shown</p></div><input className="admin-search-input" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search email or branch" aria-label="Search administrators" /></div>
+      <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Administrator</th><th>Access</th><th>Branch</th><th>Status</th><th aria-label="Actions" /></tr></thead><tbody>
+        {loading ? <tr><td colSpan="5" className="admin-table-state">Loading administrators…</td></tr> : filteredAdmins.length ? filteredAdmins.map((admin) => { const isSuperAdmin = !admin.branch; return <tr key={admin.id}><td><div className="admin-identity"><div className="admin-list-avatar">{admin.email?.charAt(0).toUpperCase()}</div><strong>{admin.email}</strong></div></td><td>{isSuperAdmin ? "Super Admin" : "Branch Admin"}</td><td>{isSuperAdmin ? "All branches" : admin.branch}</td><td><span className={`admin-status admin-status-${admin.status?.toLowerCase()}`}>{admin.status}</span></td><td>{isSuperAdmin ? <span className="admin-protected-label">Protected</span> : <button className="admin-delete-button" disabled={deletingId === admin.id} onClick={() => handleDeleteAdmin(admin)}>{deletingId === admin.id ? "Deleting…" : "Delete"}</button>}</td></tr>; }) : <tr><td colSpan="5" className="admin-table-state">No administrators match your search.</td></tr>}
+      </tbody></table></div>
+    </section>
+  </div>;
 }
+
+function SummaryCard({ label, value }) { return <div className="admin-summary-card"><span>{label}</span><strong>{value}</strong></div>; }
 
 export default AdminManagement;

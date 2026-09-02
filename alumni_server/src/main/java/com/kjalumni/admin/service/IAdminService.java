@@ -2,6 +2,10 @@ package com.kjalumni.admin.service;
 
 import com.kjalumni.admin.dto.AdminDashboardResponse;
 import com.kjalumni.admin.dto.AlumniListResponse;
+import com.kjalumni.admin.dto.AlumniDetailResponse;
+import com.kjalumni.admin.dto.AlumniStatusUpdateRequest;
+import com.kjalumni.admin.dto.AlumniUpdateRequest;
+import com.kjalumni.admin.dto.AdminListResponse;
 import com.kjalumni.admin.dto.CreateAdminRequest;
 import com.kjalumni.auth.dto.PendingRegistrationResponse;
 import com.kjalumni.auth.entity.User;
@@ -16,18 +20,18 @@ import java.util.UUID;
 public interface IAdminService
 {
 
-    List<PendingRegistrationResponse> getVerifiedRegistrations();
+    List<PendingRegistrationResponse> getVerifiedRegistrations(User currentUser);
 
-    void approveRegistration(UUID registrationId);
+    void approveRegistration(UUID registrationId, User currentUser);
 
-    void rejectRegistration(UUID registrationId, String reason);
+    void rejectRegistration(UUID registrationId, String reason, User currentUser);
 
     void createAdmin(
             CreateAdminRequest request,
             User currentUser
     );
 
-    List<User> getAllAdmins(User currentUser);
+    List<AdminListResponse> getAllAdmins(User currentUser);
 
     void deleteAdmin(UUID adminId, User currentUser);
 
@@ -41,4 +45,10 @@ public interface IAdminService
             UserStatus status,
             Pageable pageable
     );
+
+    AlumniDetailResponse getAlumni(UUID alumniId, User currentUser);
+
+    AlumniDetailResponse updateAlumni(UUID alumniId, AlumniUpdateRequest request, User currentUser);
+
+    AlumniDetailResponse updateAlumniStatus(UUID alumniId, AlumniStatusUpdateRequest request, User currentUser);
 }

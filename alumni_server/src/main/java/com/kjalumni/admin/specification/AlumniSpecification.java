@@ -44,6 +44,16 @@ public final class AlumniSpecification
             Expression<String> lastName =
                     cb.lower(root.get("lastName"));
 
+            Expression<String> fullName = cb.lower(
+                    cb.concat(
+                            cb.concat(
+                                    cb.concat(root.get("firstName"), " "),
+                                    cb.coalesce(root.get("middleName"), "")
+                            ),
+                            cb.concat(" ", root.get("lastName"))
+                    )
+            );
+
             Expression<String> email =
                     cb.lower(user.get("email"));
 
@@ -55,6 +65,7 @@ public final class AlumniSpecification
                     cb.like(firstName, value),
                     cb.like(middleName, value),
                     cb.like(lastName, value),
+                    cb.like(fullName, value),
                     cb.like(email, value),
                     cb.like(contactNumber, value)
             );

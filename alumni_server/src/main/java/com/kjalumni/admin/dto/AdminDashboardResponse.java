@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
+
 @Getter
 @Builder
 @AllArgsConstructor
@@ -23,4 +25,12 @@ public class AdminDashboardResponse
     private Long totalAdmins;
 
     private Long activeAdmins;
+
+    private long branchAlumni;
+
+    private long branchPendingRegistrations;
+
+    private Map<String, Long> alumniByBranch;
+
+    private Map<Integer, Long> alumniByPassoutYear;
 }

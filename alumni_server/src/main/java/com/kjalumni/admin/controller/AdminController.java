@@ -2,6 +2,10 @@ package com.kjalumni.admin.controller;
 
 import com.kjalumni.admin.dto.AdminDashboardResponse;
 import com.kjalumni.admin.dto.AlumniListResponse;
+import com.kjalumni.admin.dto.AlumniDetailResponse;
+import com.kjalumni.admin.dto.AlumniStatusUpdateRequest;
+import com.kjalumni.admin.dto.AlumniUpdateRequest;
+import com.kjalumni.admin.dto.AdminListResponse;
 import com.kjalumni.admin.dto.CreateAdminRequest;
 import com.kjalumni.admin.dto.RejectRegistrationRequest;
 import com.kjalumni.auth.dto.PendingRegistrationResponse;
@@ -17,7 +21,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -50,11 +53,11 @@ public class AdminController
 
     @GetMapping("/registrations")
     public ResponseEntity<ApiResponse<List<PendingRegistrationResponse>>>
-    getVerifiedRegistrations()
+    getVerifiedRegistrations(@AuthenticationPrincipal User currentUser)
     {
 
         List<PendingRegistrationResponse> registrations =
-                adminService.getVerifiedRegistrations();
+                adminService.getVerifiedRegistrations(currentUser);
 
         return ResponseEntity.ok(
                 ApiResponse.<List<PendingRegistrationResponse>>builder()
@@ -67,10 +70,11 @@ public class AdminController
 
     @PostMapping("/registrations/{id}/approve")
     public ResponseEntity<ApiResponse<Void>> approveRegistration(
-            @PathVariable UUID id)
+            @PathVariable UUID id,
+            @AuthenticationPrincipal User currentUser)
     {
 
-        adminService.approveRegistration(id);
+        adminService.approveRegistration(id, currentUser);
 
         return ResponseEntity.ok(
                 ApiResponse.<Void>builder()
@@ -84,12 +88,13 @@ public class AdminController
     @PostMapping("/registrations/{id}/reject")
     public ResponseEntity<ApiResponse<Void>> rejectRegistration(
             @PathVariable UUID id,
-            @Valid @RequestBody RejectRegistrationRequest request)
+            @Valid @RequestBody RejectRegistrationRequest request,
+            @AuthenticationPrincipal User currentUser)
     {
 
         adminService.rejectRegistration(
                 id,
-                request.getReason()
+                request.getReason(), currentUser
         );
 
         return ResponseEntity.ok(
@@ -122,15 +127,15 @@ public class AdminController
     }
 
     @GetMapping("/admins")
-    public ApiResponse<List<User>> getAllAdmins(
+    public ApiResponse<List<AdminListResponse>> getAllAdmins(
             @AuthenticationPrincipal User currentUser
     )
     {
 
-        List<User> admins =
+        List<AdminListResponse> admins =
                 adminService.getAllAdmins(currentUser);
 
-        return ApiResponse.<List<User>>builder()
+        return ApiResponse.<List<AdminListResponse>>builder()
                 .success(true)
                 .message("Admins fetched successfully.")
                 .data(admins)
@@ -199,5 +204,37 @@ public class AdminController
                 .data(alumni)
                 .timestamp(LocalDateTime.now())
                 .build();
+    }
+
+    @GetMapping("/alumni/{alumniId}")
+    public ApiResponse<AlumniDetailResponse> getAlumni(
+            @PathVariable UUID alumniId,
+            @AuthenticationPrincipal User currentUser)
+    {
+        return response("Alumni fetched successfully.", adminService.getAlumni(alumniId, currentUser));
+    }
+
+    @PutMapping("/alumni/{alumniId}")
+    public ApiResponse<AlumniDetailResponse> updateAlumni(
+            @PathVariable UUID alumniId,
+            @Valid @RequestBody AlumniUpdateRequest request,
+            @AuthenticationPrincipal User currentUser)
+    {
+        return response("Alumni updated successfully.", adminService.updateAlumni(alumniId, request, currentUser));
+    }
+
+    @PatchMapping("/alumni/{alumniId}/status")
+    public ApiResponse<AlumniDetailResponse> updateAlumniStatus(
+            @PathVariable UUID alumniId,
+            @Valid @RequestBody AlumniStatusUpdateRequest request,
+            @AuthenticationPrincipal User currentUser)
+    {
+        return response("Alumni status updated successfully.", adminService.updateAlumniStatus(alumniId, request, currentUser));
+    }
+
+    private <T> ApiResponse<T> response(String message, T data)
+    {
+        return ApiResponse.<T>builder().success(true).message(message).data(data)
+                .timestamp(LocalDateTime.now()).build();
     }
 }

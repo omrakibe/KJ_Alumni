@@ -11,9 +11,11 @@ import {
 
 import AuthLayout from "../../component/Auth/AuthLayout";
 import { login } from "../../services/authService";
+import { useAuth } from "../../context/AuthContext";
 import "../../styles/auth.css";
 
 function Login() {
+  const { login: setAuthenticatedUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
  
@@ -87,7 +89,6 @@ function Login() {
 
       if (response.success) {
         const token = response.data?.token;
-        const type = response.data?.type;
 
         if (!token) {
           setFlash({
@@ -101,11 +102,7 @@ function Login() {
         /*
          * Store exactly what the backend returned.
          */
-        localStorage.setItem("authToken", token);
-
-        if (type) {
-          localStorage.setItem("tokenType", type);
-        }
+        setAuthenticatedUser(token, null);
 
         setFlash({
           type: "success",
