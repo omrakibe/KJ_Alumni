@@ -75,6 +75,8 @@
   box-shadow: 0 8px 18px rgba(0,0,0,.2);
 }
 
+.admin-nav-badge { display: grid; min-width: 21px; height: 21px; place-items: center; margin-left: auto; padding: 0 5px; border-radius: 99px; background: #f4b942; color: #152744; font-size: 11px; font-weight: 900; box-shadow: 0 3px 10px rgba(0,0,0,.2); }
+
 .admin-bottom {
   margin-top: auto;
   padding-top: 16px;
@@ -94,8 +96,9 @@
 /* MAIN */
 
 .admin-main {
-  width: calc(100% - 280px);
-  margin-left: 280px;
+  width: 100%;
+  box-sizing: border-box;
+  margin-left: 0;
   padding: 34px;
 }
 
@@ -290,6 +293,7 @@
 .breakdown-row { display: flex; justify-content: space-between; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; color: #4b5563; }
 .breakdown-row:last-child { padding-bottom: 0; border-bottom: 0; }
 .breakdown-row strong { color: #111827; }
+.dashboard-events-preview { margin-top: 20px; }.dashboard-events-title { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }.dashboard-events-title h2 { margin:0; }.dashboard-events-title a { color:#2460a1; font-size:13px; font-weight:800; }.dashboard-event-row { display:flex; justify-content:space-between; gap:15px; padding:13px 0; border-top:1px solid #edf1f5; }.dashboard-event-row strong,.dashboard-event-row span { display:block; }.dashboard-event-row strong { color:#182b46; }.dashboard-event-row span { margin-top:4px; color:#718198; font-size:13px; }.dashboard-event-row small { align-self:center; padding:5px 8px; border-radius:14px; background:#eaf3ff; color:#2460a1; font-weight:800; }
 
 @media (max-width: 800px) {
   .dashboard-data-grid { grid-template-columns: 1fr; }

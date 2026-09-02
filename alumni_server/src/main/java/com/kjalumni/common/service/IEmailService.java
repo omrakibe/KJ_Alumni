@@ -1,5 +1,7 @@
 package com.kjalumni.common.service;
 
+import java.time.LocalDateTime;
+
 public interface IEmailService
 {
     void sendOtpEmail(
@@ -23,4 +25,10 @@ public interface IEmailService
             String email,
             String otp
     );
+
+    void sendNewEventEmail(String email, String title, String description, String venue, LocalDateTime eventDateTime);
+
+    void sendEventCancellationEmail(String email, String title, String venue, LocalDateTime eventDateTime);
+
+    void sendEventUpdateEmail(String email, String title, String message, String venue, LocalDateTime eventDateTime);
 }

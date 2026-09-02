@@ -35,7 +35,7 @@ function AuthLayout({ children }) {
 
           <div className="auth-hero-text">
             <span className="auth-hero-eyebrow">
-              KJCOEMR ALUMNI NETWORK
+              KJCOEMR CONNECT
             </span>
 
             <h1>

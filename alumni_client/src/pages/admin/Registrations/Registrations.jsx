@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 import {
   getRegistrations,
@@ -358,6 +359,8 @@ function Registrations() {
   return (
 
     <div className="registrations-page">
+
+      <Link to="/admin/dashboard" className="registrations-back">← Back to Dashboard</Link>
 
 
       {/* ==================================

@@ -16,6 +16,10 @@ spring:
         format_sql: true
     open-in-view: false
 
+  flyway:
+    baseline-on-migrate: true
+    baseline-version: 0
+
   mail:
     host: smtp.gmail.com
     port: 587
@@ -33,7 +37,7 @@ server:
 
 jwt:
   secret: 9r6nGvBz3M8LqW2Xh7FpK4TsY1UvJ8Nc5ErA0DmQz6LxP9HbCf
-  access-token-expiration: 72000000        # 24 hrs
+  access-token-expiration: 86400000        # 24 hrs
 
 app:
   frontend-url: http://localhost:5173

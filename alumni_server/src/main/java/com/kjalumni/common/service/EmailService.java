@@ -8,6 +8,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -124,6 +125,37 @@ public class EmailService implements IEmailService
                 "Reset your KJ Alumni Portal password",
                 htmlContent
         );
+    }
+
+    @Override
+    public void sendNewEventEmail(String email, String title, String description, String venue, LocalDateTime eventDateTime) {
+        Context context = new Context();
+        context.setVariable("title", title);
+        context.setVariable("description", description);
+        context.setVariable("venue", venue);
+        context.setVariable("eventDateTime", eventDateTime);
+        context.setVariable("loginUrl", frontendUrl + "/login");
+        sendEmail(email, "New KJCOEMR Alumni Event: " + title, templateEngine.process("email/new-event", context));
+    }
+
+    @Override
+    public void sendEventCancellationEmail(String email, String title, String venue, LocalDateTime eventDateTime) {
+        Context context = new Context();
+        context.setVariable("title", title);
+        context.setVariable("venue", venue);
+        context.setVariable("eventDateTime", eventDateTime);
+        sendEmail(email, "Cancelled: KJCOEMR Alumni Event " + title, templateEngine.process("email/event-cancelled", context));
+    }
+
+    @Override
+    public void sendEventUpdateEmail(String email, String title, String message, String venue, LocalDateTime eventDateTime) {
+        Context context = new Context();
+        context.setVariable("title", title);
+        context.setVariable("message", message);
+        context.setVariable("venue", venue);
+        context.setVariable("eventDateTime", eventDateTime);
+        context.setVariable("loginUrl", frontendUrl + "/login");
+        sendEmail(email, "Update: KJCOEMR Alumni Event " + title, templateEngine.process("email/event-update", context));
     }
 
     private void sendEmail(

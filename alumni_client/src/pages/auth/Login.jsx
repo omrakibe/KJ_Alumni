@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import {
@@ -15,7 +15,7 @@ import { useAuth } from "../../context/AuthContext";
 import "../../styles/auth.css";
 
 function Login() {
-  const { login: setAuthenticatedUser } = useAuth();
+  const { login: setAuthenticatedUser, user, isAuthenticated, loadingUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
  
@@ -31,6 +31,11 @@ function Login() {
     type: "",
     message: "",
   });
+
+  useEffect(() => {
+    if (!loadingUser && isAuthenticated && user?.role === "ADMIN") navigate("/admin/dashboard", { replace: true });
+    if (!loadingUser && isAuthenticated && user?.role === "ALUMNI") navigate("/alumni/dashboard", { replace: true });
+  }, [isAuthenticated, loadingUser, navigate, user?.role]);
 
   /*
    * =========================================
@@ -194,7 +199,7 @@ function Login() {
           </div>
 
           <span className="login-eyebrow">
-            KJCOEMR ALUMNI NETWORK
+            KJCOEMR CONNECT
           </span>
 
           <h1>

@@ -4,6 +4,8 @@
   background: #f5f7fb;
 }
 
+.registrations-back { display: inline-flex; margin-bottom: 18px; color: #1f5f9f; font-size: 13px; font-weight: 800; }
+
 
 /* ================================
    HEADER

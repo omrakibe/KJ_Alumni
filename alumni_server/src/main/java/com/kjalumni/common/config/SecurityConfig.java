@@ -56,12 +56,18 @@ public class SecurityConfig
                                 "/api/auth/reset-password"
                         ).permitAll()
 
+                        .requestMatchers("/api/public/**")
+                        .permitAll()
+
                         .requestMatchers("/api/auth/me")
                         .authenticated()
                         
                         // Admin APIs
                         .requestMatchers("/api/admin/**")
                         .hasRole("ADMIN")
+
+                        .requestMatchers("/api/alumni/**")
+                        .hasRole("ALUMNI")
 
                         // Everything else requires authentication
                         .anyRequest()
