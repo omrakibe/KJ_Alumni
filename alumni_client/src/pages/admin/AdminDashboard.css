@@ -293,10 +293,10 @@
 .breakdown-row { display: flex; justify-content: space-between; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; color: #4b5563; }
 .breakdown-row:last-child { padding-bottom: 0; border-bottom: 0; }
 .breakdown-row strong { color: #111827; }
-.dashboard-events-preview { margin-top: 20px; }.dashboard-events-title { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }.dashboard-events-title h2 { margin:0; }.dashboard-events-title a { color:#2460a1; font-size:13px; font-weight:800; }.dashboard-event-row { display:flex; justify-content:space-between; gap:15px; padding:13px 0; border-top:1px solid #edf1f5; }.dashboard-event-row strong,.dashboard-event-row span { display:block; }.dashboard-event-row strong { color:#182b46; }.dashboard-event-row span { margin-top:4px; color:#718198; font-size:13px; }.dashboard-event-row small { align-self:center; padding:5px 8px; border-radius:14px; background:#eaf3ff; color:#2460a1; font-weight:800; }
+.dashboard-community-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; margin-top:20px; }.dashboard-preview { min-width:0; }.dashboard-events-title { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:12px; }.dashboard-events-title h2 { margin:0; }.dashboard-events-title a { color:#2460a1; font-size:13px; font-weight:800; white-space:nowrap; }.dashboard-preview-row { display:flex; justify-content:space-between; align-items:center; gap:15px; padding:13px 0; border-top:1px solid #edf1f5; }.dashboard-preview-row > div { min-width:0; }.dashboard-preview-row strong,.dashboard-preview-row span { display:block; }.dashboard-preview-row strong { overflow:hidden; color:#182b46; text-overflow:ellipsis; white-space:nowrap; }.dashboard-preview-row span { margin-top:4px; overflow:hidden; color:#718198; font-size:13px; text-overflow:ellipsis; white-space:nowrap; }.dashboard-preview-row small { flex-shrink:0; padding:5px 8px; border-radius:14px; background:#eaf3ff; color:#2460a1; font-size:10px; font-weight:800; }.dashboard-priority.important { background:#fffbeb; color:#b45309; }.dashboard-priority.urgent { background:#fff1f2; color:#be123c; }
 
 @media (max-width: 800px) {
-  .dashboard-data-grid { grid-template-columns: 1fr; }
+  .dashboard-data-grid, .dashboard-community-grid { grid-template-columns: 1fr; }
 }
 
 .admin-card {

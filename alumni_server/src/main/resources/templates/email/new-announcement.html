@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>New KJCOEMR Announcement</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f7fb;font-family:Arial,Helvetica,sans-serif;color:#1b3352;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f7fb;padding:32px 15px;">
+    <tr>
+        <td align="center">
+            <table width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;background:#ffffff;border-radius:14px;overflow:hidden;box-shadow:0 5px 18px rgba(27,51,82,.10);">
+                <tr>
+                    <td style="padding:28px;background:#173d6e;color:#ffffff;text-align:center;">
+                        <h1 style="margin:0;font-size:23px;letter-spacing:.2px;">KJCOEMR Alumni Network</h1>
+                        <p style="margin:8px 0 0;color:#c9ddf7;font-size:15px;">A new announcement has been published</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:32px;">
+                        <table cellpadding="0" cellspacing="0" border="0" style="margin:0 0 16px;">
+                            <tr>
+                                <td style="padding:6px 10px;border-radius:6px;background:#eef5fd;color:#1f5f9f;font-size:12px;font-weight:bold;letter-spacing:.4px;" th:text="${priority} + ' PRIORITY'">IMPORTANT PRIORITY</td>
+                            </tr>
+                        </table>
+                        <h2 style="margin:0 0 13px;color:#1b3352;font-size:22px;line-height:1.35;" th:text="${title}">Announcement title</h2>
+                        <div style="padding:17px;background:#eef5fd;border-radius:10px;color:#27415e;font-size:15px;line-height:1.65;white-space:pre-line;" th:text="${message}">Announcement message</div>
+                        <p style="margin:24px 0 20px;color:#52667c;font-size:15px;line-height:1.6;">Sign in to KJCOEMR Connect to stay up to date with your alumni community.</p>
+                        <a th:href="${loginUrl}" style="display:inline-block;padding:12px 18px;background:#1f5f9f;border-radius:8px;color:#ffffff;text-decoration:none;font-size:14px;font-weight:bold;">View announcements</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:19px 28px;background:#f8fafc;text-align:center;border-top:1px solid #e7edf5;">
+                        <p style="margin:0;color:#6d7f92;font-size:12px;">KJCOEMR Connect — Alumni Portal</p>
+                        <p style="margin:6px 0 0;color:#93a1af;font-size:11px;">K J College of Engineering and Management Research</p>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

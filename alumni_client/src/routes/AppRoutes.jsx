@@ -13,6 +13,7 @@ import ResetPassword from "../pages/auth/ResetPassword";
 import AlumniDashboard from "../pages/alumni/AlumniDashboard";
 import AlumniProfile from "../pages/alumni/AlumniProfile";
 import AlumniEvents from "../pages/alumni/AlumniEvents";
+import AlumniAnnouncements from "../pages/alumni/AlumniAnnouncements";
 
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import AlumniManagement from "../pages/admin/AlumniManagement";
@@ -22,6 +23,7 @@ import Events from "../pages/admin/event/Events";
 import CreateEvent from "../pages/admin/event/CreateEvent";
 import EventDetail from "../pages/admin/event/EventDetail";
 import AlumniEventDetail from "../pages/alumni/AlumniEventDetail";
+import Announcements from "../pages/admin/announcement/Announcements";
 import ProtectedRoute from "./ProtectedRoute";
 import SuperAdminRoute from "./SuperAdminRoute";
 import AdminLayout from "../component/Admin/AdminLayout";
@@ -88,6 +90,7 @@ function AppRoutes() {
       <Route path="/alumni/profile" element={<ProtectedRoute allowedRole="ALUMNI"><AlumniLayout><AlumniProfile /></AlumniLayout></ProtectedRoute>} />
       <Route path="/alumni/events" element={<ProtectedRoute allowedRole="ALUMNI"><AlumniLayout><AlumniEvents /></AlumniLayout></ProtectedRoute>} />
       <Route path="/alumni/events/:id" element={<ProtectedRoute allowedRole="ALUMNI"><AlumniLayout><AlumniEventDetail /></AlumniLayout></ProtectedRoute>} />
+      <Route path="/alumni/announcements" element={<ProtectedRoute allowedRole="ALUMNI"><AlumniLayout><AlumniAnnouncements /></AlumniLayout></ProtectedRoute>} />
 
 
       {/* =========================
@@ -110,6 +113,7 @@ function AppRoutes() {
       <Route path="/admin/events" element={<ProtectedRoute allowedRole="ADMIN"><AdminLayout><Events /></AdminLayout></ProtectedRoute>} />
       <Route path="/admin/events/create" element={<ProtectedRoute allowedRole="ADMIN"><AdminLayout><CreateEvent /></AdminLayout></ProtectedRoute>} />
       <Route path="/admin/events/:id" element={<ProtectedRoute allowedRole="ADMIN"><AdminLayout><EventDetail /></AdminLayout></ProtectedRoute>} />
+      <Route path="/admin/announcements" element={<ProtectedRoute allowedRole="ADMIN"><AdminLayout><Announcements /></AdminLayout></ProtectedRoute>} />
 
     </Routes>
   );

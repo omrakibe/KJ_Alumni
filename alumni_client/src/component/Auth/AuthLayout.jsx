@@ -23,14 +23,15 @@ function AuthLayout({ children }) {
         <div className="auth-hero-content">
           {/* Logo */}
 
-          <div className="auth-logo-container">
-            <img
-              src={collegeLogo}
-              alt="KJCOEMR"
-              className="auth-logo"
-            />
-          </div>
-
+          <a href={"/"}>
+            <div className="auth-logo-container">
+              <img
+                src={collegeLogo}
+                alt="KJCOEMR"
+                className="auth-logo"
+              />
+            </div>
+          </a>
           {/* Main message */}
 
           <div className="auth-hero-text">

@@ -158,6 +158,16 @@ public class EmailService implements IEmailService
         sendEmail(email, "Update: KJCOEMR Alumni Event " + title, templateEngine.process("email/event-update", context));
     }
 
+    @Override
+    public void sendNewAnnouncementEmail(String email, String title, String message, String priority) {
+        Context context = new Context();
+        context.setVariable("title", title);
+        context.setVariable("message", message);
+        context.setVariable("priority", priority);
+        context.setVariable("loginUrl", frontendUrl + "/login");
+        sendEmail(email, "KJCOEMR Announcement: " + title, templateEngine.process("email/new-announcement", context));
+    }
+
     private void sendEmail(
             String to,
             String subject,

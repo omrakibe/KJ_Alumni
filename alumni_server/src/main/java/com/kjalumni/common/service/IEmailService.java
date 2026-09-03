@@ -31,4 +31,6 @@ public interface IEmailService
     void sendEventCancellationEmail(String email, String title, String venue, LocalDateTime eventDateTime);
 
     void sendEventUpdateEmail(String email, String title, String message, String venue, LocalDateTime eventDateTime);
+
+    void sendNewAnnouncementEmail(String email, String title, String message, String priority);
 }
