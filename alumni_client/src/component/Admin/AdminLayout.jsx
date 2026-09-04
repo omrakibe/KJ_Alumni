@@ -11,7 +11,7 @@ import "./AdminSidebarLogo.css";
 
 export default function AdminLayout({ children }) {
   const { user, logout } = useAuth();
-  const [collapsed, setCollapsed] = useState(() => localStorage.getItem("adminSidebarCollapsed") === "true");
+  const [collapsed, setCollapsed] = useState(() => window.innerWidth <= 850 || localStorage.getItem("adminSidebarCollapsed") === "true");
   const [pendingCount, setPendingCount] = useState(0);
   const isSuperAdmin = user?.role === "ADMIN" && user?.branch === null;
   useEffect(() => { getAdminDashboard().then((response) => setPendingCount(response.data?.pendingRegistrations || 0)).catch(() => {}); }, []);
