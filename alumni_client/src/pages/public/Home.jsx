@@ -28,7 +28,7 @@ function Home() {
       {/*<section className="public-cta"><div className="container public-cta-inner"><div><p className="public-eyebrow"><Award size={14} /> KJCOEMR alumni network</p><h2>Ready to be part of the next chapter?</h2><p>Register your profile and join the growing alumni community.</p></div><Link to="/register" className="public-button public-button-light">Register now <ArrowRight size={18} /></Link></div></section>*/}
     </main>
 
-    <footer className="public-footer"><div className="container public-footer-inner"><div className="public-brand"><span className="public-brand-mark"><img src={collegeLogo} alt="KJCOEMR" /></span><span>KJCOEMR <small>Alumni Network</small></span></div><p>Love from Om, Sejal, Prathmesh, Viraj</p><p>© 2026 KJCOEMR Alumni Association</p></div></footer>
+    <footer className="public-footer"><div className="container public-footer-inner"><div className="public-brand"><span className="public-brand-mark"><img src={collegeLogo} alt="KJCOEMR" /></span><span>KJCOEMR <small>Alumni Network</small></span></div><p>Love from Sejal, Prathmesh, Viraj, Om</p><p>© 2026 KJCOEMR Alumni Association</p></div></footer>
   </div>;
 }
 
