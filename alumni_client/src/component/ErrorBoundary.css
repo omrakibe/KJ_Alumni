@@ -1,0 +1,62 @@
+.app-error-boundary {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 24px;
+  background: var(--surface-page);
+  color: var(--text-primary);
+}
+
+.app-error-boundary > div {
+  width: min(100%, 560px);
+  padding: clamp(26px, 5vw, 48px);
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  background: var(--surface-card);
+  box-shadow: var(--shadow-md);
+}
+
+.app-error-boundary span {
+  color: var(--danger-color);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.app-error-boundary h1 {
+  margin: 12px 0;
+  color: var(--text-heading);
+  font-size: clamp(28px, 5vw, 42px);
+}
+
+.app-error-boundary p {
+  color: var(--text-muted);
+  line-height: 1.65;
+}
+
+.app-error-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.app-error-actions button,
+.app-error-actions a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 17px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  background: var(--primary-color);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.app-error-actions a {
+  background: var(--surface-raised);
+  color: var(--text-primary);
+}

@@ -1,0 +1,90 @@
+.route-state {
+  display: grid;
+  min-height: 100vh;
+  place-content: center;
+  justify-items: center;
+  gap: 14px;
+  padding: 24px;
+  background: var(--surface-page);
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.route-state-spinner {
+  width: 34px;
+  height: 34px;
+  border: 3px solid var(--border-subtle);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: route-state-spin 700ms linear infinite;
+}
+
+.route-state p {
+  color: var(--text-muted);
+}
+
+.route-not-found > span {
+  color: var(--secondary-color);
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+}
+
+.route-not-found h1 {
+  margin: 0;
+  color: var(--text-heading);
+  font-size: clamp(34px, 8vw, 58px);
+}
+
+.route-not-found a {
+  min-height: 44px;
+  margin-top: 8px;
+  padding: 12px 18px;
+  border-radius: 10px;
+  background: var(--primary-color);
+  color: #ffffff;
+  font-weight: 750;
+}
+
+.route-session-error > span {
+  color: var(--warning-color);
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.route-session-error h1 {
+  margin: 0;
+  color: var(--text-heading);
+}
+
+.route-session-error > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.route-session-error button {
+  min-height: 44px;
+  padding: 0 17px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  background: var(--primary-color);
+  color: #ffffff;
+  font-weight: 750;
+}
+
+.route-session-error .route-state-secondary {
+  background: var(--surface-card);
+  color: var(--text-primary);
+}
+
+@keyframes route-state-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .route-state-spinner { animation-duration: 1.5s; }
+}

@@ -1,1 +1,83 @@
-.theme-toggle{position:fixed;z-index:1000;display:grid;width:42px;height:42px;place-items:center;border:1px solid #d8e2f0;border-radius:11px;background:#fff;color:#173968;box-shadow:0 8px 18px rgba(12,35,70,.16);transition:transform .2s,background .2s,color .2s}.theme-toggle:hover{transform:translateY(-2px)}.theme-toggle-public{top:18px;right:22px;border-color:rgba(255,255,255,.3);background:rgba(8,28,58,.72);color:#fff;backdrop-filter:blur(10px)}.theme-toggle-admin,.theme-toggle-alumni{right:28px;bottom:26px}.theme-toggle-auth{top:22px;right:26px}body.dark-mode .theme-toggle{border-color:#424242;background:#171717;color:#ffd36d}@media(max-width:850px){.theme-toggle-admin,.theme-toggle-alumni{right:18px;bottom:18px}}@media(max-width:600px){.theme-toggle{width:38px;height:38px}.theme-toggle-public{top:16px;right:12px}.theme-toggle-auth{top:14px;right:14px}}
+.theme-toggle {
+  display: inline-flex;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--theme-control-border);
+  border-radius: 11px;
+  background: var(--theme-control-bg);
+  color: var(--theme-control-text);
+  box-shadow: 0 8px 18px rgba(12, 35, 70, 0.14);
+  transition: transform 180ms ease, background-color 180ms ease, color 180ms ease;
+}
+
+.theme-toggle:hover {
+  transform: translateY(-1px);
+}
+
+.theme-toggle-labelled {
+  width: 100%;
+  height: auto;
+  min-height: 42px;
+  gap: 11px;
+  justify-content: flex-start;
+  padding: 10px 12px;
+  box-shadow: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.theme-toggle-public {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(8, 28, 58, 0.72);
+  color: #ffffff;
+  box-shadow: none;
+  backdrop-filter: blur(10px);
+}
+
+.theme-toggle-auth {
+  position: absolute;
+  z-index: 2;
+  top: 22px;
+  right: 26px;
+}
+
+.portal-theme-toggle {
+  border-color: transparent;
+  background: transparent;
+  color: inherit;
+}
+
+.portal-theme-toggle:hover {
+  transform: none;
+}
+
+body.dark-mode .theme-toggle-public {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.72);
+  color: #ffd36d;
+}
+
+body.dark-mode .portal-theme-toggle {
+  border-color: transparent;
+  background: transparent;
+}
+
+@media (max-width: 600px) {
+  .theme-toggle {
+    width: 40px;
+    height: 40px;
+  }
+
+  .theme-toggle-labelled {
+    width: 100%;
+    height: auto;
+  }
+
+  .theme-toggle-auth {
+    top: 14px;
+    right: 14px;
+  }
+}

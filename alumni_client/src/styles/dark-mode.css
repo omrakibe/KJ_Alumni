@@ -1,1 +1,311 @@
-body.dark-mode{background:#050505;color:#f5f5f5}body.dark-mode .home,body.dark-mode .admin-dashboard,body.dark-mode .alumni-dashboard,body.dark-mode .auth-main,body.dark-mode .admin-layout-content,body.dark-mode .alumni-layout-content,body.dark-mode .admin-main,body.dark-mode .alumni-main,body.dark-mode .announcements-page,body.dark-mode .alumni-announcements-page{background:#050505;color:#f5f5f5}body.dark-mode .public-events,body.dark-mode .public-story{background:#090909}body.dark-mode .public-events-grid article,body.dark-mode .public-trust-card,body.dark-mode .public-story-grid>div:last-child,body.dark-mode .admin-stat-card,body.dark-mode .quick-action,body.dark-mode .dashboard-breakdown,body.dark-mode .announcement-composer,body.dark-mode .announcement-library,body.dark-mode .alumni-profile-summary article,body.dark-mode .alumni-dashboard-panel,body.dark-mode .alumni-announcement,body.dark-mode .alumni-events-section,body.dark-mode .event-management-section{background:#141414;border-color:#303030;color:#f5f5f5;box-shadow:none}body.dark-mode h1,body.dark-mode h2,body.dark-mode h3,body.dark-mode strong{color:#fff}body.dark-mode p,body.dark-mode span,body.dark-mode small,body.dark-mode label{color:#c7c7c7}body.dark-mode input,body.dark-mode textarea,body.dark-mode select{background:#0b0b0b!important;border-color:#3a3a3a!important;color:#f5f5f5!important}body.dark-mode .public-footer{background:#000}body.dark-mode .theme-toggle{border-color:#424242;background:#171717;color:#ffd36d}body.dark-mode .events-page,body.dark-mode .event-detail-page,body.dark-mode .alumni-events-page,body.dark-mode .alumni-event-detail-page{background:#050505!important;color:#f5f5f5!important}body.dark-mode .event-list article,body.dark-mode .event-form,body.dark-mode .event-detail-card,body.dark-mode .alumni-events-list article,body.dark-mode .alumni-event-detail-card,body.dark-mode .alumni-events-back,body.dark-mode .alumni-events-empty,body.dark-mode .alumni-events-error,body.dark-mode .event-detail-meta div,body.dark-mode .alumni-event-detail-meta div{background:#141414!important;border-color:#303030!important;color:#f5f5f5!important;box-shadow:none!important}body.dark-mode .event-list p,body.dark-mode .event-detail-description,body.dark-mode .event-detail-host,body.dark-mode .event-detail-form-heading p,body.dark-mode .alumni-events-page header span,body.dark-mode .alumni-events-list p,body.dark-mode .alumni-event-detail-description,body.dark-mode .alumni-event-detail-meta small{color:#c7c7c7!important}body.dark-mode .event-list span,body.dark-mode .event-status,body.dark-mode .alumni-events-list span,body.dark-mode .alumni-event-date,body.dark-mode .event-detail-meta div{background:#202020!important;color:#f0c85b!important}body.dark-mode .alumni-events-dashboard{background:#141414!important;border-color:#303030!important;box-shadow:none!important}body.dark-mode .alumni-dashboard-event{background:#1a1a1a!important;border-color:#363636!important}body.dark-mode .alumni-dashboard-event-date{background:#252525!important;color:#f0c85b!important}body.dark-mode .alumni-dashboard-event-date span,body.dark-mode .alumni-dashboard-event b{color:#f0c85b!important}
+body.dark-mode {
+  background: var(--surface-page);
+  color: var(--text-primary);
+}
+
+body.dark-mode :is(.home, .admin-dashboard, .alumni-dashboard, .auth-main, .admin-layout-content, .alumni-layout-content, .admin-main, .alumni-main, .announcements-page, .alumni-announcements-page) {
+  background-color: var(--surface-page);
+  color: var(--text-primary);
+}
+
+body.dark-mode :is(.public-events, .public-story) {
+  background: #090909;
+}
+
+body.dark-mode :is(.public-events-grid article, .public-trust-card, .public-story-grid > div:last-child, .admin-stat-card, .quick-action, .dashboard-breakdown, .announcement-composer, .announcement-library, .alumni-profile-summary article, .alumni-dashboard-panel, .alumni-announcement, .alumni-events-section, .event-management-section) {
+  border-color: var(--border-subtle);
+  background: var(--surface-card);
+  color: var(--text-primary);
+  box-shadow: none;
+}
+
+body.dark-mode :is(input, textarea, select) {
+  border-color: var(--border-subtle) !important;
+  background: var(--surface-input) !important;
+  color: var(--text-primary) !important;
+}
+
+body.dark-mode :is(input, textarea)::placeholder {
+  color: #777777;
+}
+
+body.dark-mode .public-footer {
+  background: #000000;
+}
+
+body.dark-mode :is(.events-page, .event-detail-page, .alumni-events-page, .alumni-event-detail-page) {
+  background: var(--surface-page) !important;
+  color: var(--text-primary) !important;
+}
+
+body.dark-mode :is(.event-list article, .event-form, .event-detail-card, .alumni-events-list article, .alumni-event-detail-card, .alumni-events-back, .alumni-events-empty, .alumni-events-error, .event-detail-meta div, .alumni-event-detail-meta div) {
+  border-color: var(--border-subtle) !important;
+  background: var(--surface-card) !important;
+  color: var(--text-primary) !important;
+  box-shadow: none !important;
+}
+
+body.dark-mode :is(.event-list p, .event-detail-description, .event-detail-host, .event-detail-form-heading p, .alumni-events-page header span, .alumni-events-list p, .alumni-event-detail-description, .alumni-event-detail-meta small) {
+  color: var(--text-muted) !important;
+}
+
+body.dark-mode :is(.event-list > article > a > span, .event-status, .alumni-events-list article span:first-child, .alumni-event-date, .event-detail-meta div) {
+  background: var(--surface-raised) !important;
+  color: #f0c85b !important;
+}
+
+body.dark-mode .alumni-events-dashboard {
+  border-color: var(--border-subtle) !important;
+  background: var(--surface-card) !important;
+  box-shadow: none !important;
+}
+
+body.dark-mode .alumni-dashboard-event {
+  border-color: var(--border-subtle) !important;
+  background: var(--surface-raised) !important;
+}
+
+body.dark-mode .alumni-dashboard-event-date {
+  background: #252525 !important;
+  color: #f0c85b !important;
+}
+
+body.dark-mode :is(.alumni-dashboard-event-date span, .alumni-dashboard-event b) {
+  color: #f0c85b !important;
+}
+
+/* Announcement surfaces have their own local typography, so keep every
+   readable text level on semantic tokens instead of inherited navy values. */
+body.dark-mode :is(.announcements-page, .alumni-announcements-page) {
+  background: var(--surface-page) !important;
+  color: var(--text-primary) !important;
+}
+
+body.dark-mode :is(.announcements-heading h1, .composer-title h2, .announcement-card h2, .alumni-announcements-page h1, .alumni-announcement h2, .alumni-announcement-empty h2) {
+  color: var(--text-heading) !important;
+}
+
+body.dark-mode :is(.announcements-heading span, .composer-title p, .announcement-composer label, .announcement-composer small, .announcement-tabs button, .announcement-card-top, .announcement-card p, .announcement-card footer, .announcement-empty, .alumni-announcements-page header span, .alumni-announcement-meta, .alumni-announcement p, .alumni-announcement footer, .alumni-announcement-empty) {
+  color: var(--text-muted) !important;
+}
+
+body.dark-mode :is(.announcement-composer, .announcement-library, .announcement-card, .alumni-announcement, .alumni-announcement-empty) {
+  background: var(--surface-card) !important;
+  border-color: var(--border-subtle) !important;
+  box-shadow: none !important;
+}
+
+body.dark-mode :is(.announcement-card footer, .alumni-announcement footer, .announcement-tabs) {
+  border-color: var(--border-subtle) !important;
+}
+
+body.dark-mode :is(.announcement-priority, .alumni-priority) {
+  background: var(--surface-raised) !important;
+  color: var(--text-muted) !important;
+}
+
+/* Admin dashboard: override the page-local light palette with the same
+   semantic surface and typography tokens used by the other portal pages. */
+body.dark-mode .admin-dashboard,
+body.dark-mode .admin-main {
+  background: var(--surface-page) !important;
+  color: var(--text-primary) !important;
+}
+
+body.dark-mode :is(.admin-topbar h1, .admin-user strong, .admin-stat-card strong, .section-heading h2, .quick-action h3, .dashboard-breakdown h2, .breakdown-row strong, .dashboard-preview-row strong, .admin-card-header h2, .pending-info strong, .activity strong) {
+  color: var(--text-heading) !important;
+}
+
+body.dark-mode :is(.admin-topbar p, .admin-user span, .admin-stat-card span, .admin-stat-card small, .section-heading p, .quick-action p, .dashboard-breakdown p, .breakdown-row, .dashboard-preview-row span, .admin-card-header p, .pending-info span, .activity p, .activity span, .admin-job-header, .branch-info span) {
+  color: var(--text-muted) !important;
+}
+
+body.dark-mode :is(.admin-stat-card, .quick-action, .dashboard-breakdown, .admin-card, .branch-info) {
+  background: var(--surface-card) !important;
+  border-color: var(--border-subtle) !important;
+  box-shadow: none !important;
+}
+
+body.dark-mode :is(.pending-user, .activity, .admin-job-row, .breakdown-row, .dashboard-preview-row) {
+  border-color: var(--border-subtle) !important;
+}
+
+body.dark-mode :is(.quick-icon.blue, .pending-avatar, .activity-icon.event) {
+  background: var(--surface-raised) !important;
+  color: #8fc4ff !important;
+}
+
+body.dark-mode .review-button {
+  border-color: var(--border-subtle) !important;
+  background: var(--surface-raised) !important;
+  color: #8fc4ff !important;
+}
+
+/* Alumni Management, including the view/edit dialog. */
+body.dark-mode .alumni-management-page {
+  background: var(--surface-page) !important;
+  color: var(--text-primary) !important;
+}
+
+body.dark-mode :is(.alumni-management-header h1, .alumni-modal-header h2, .alumni-field strong, .alumni-name) {
+  color: var(--text-heading) !important;
+}
+
+body.dark-mode :is(.alumni-management-header p, .alumni-field span, .alumni-modal-header p, .alumni-pagination, .alumni-table th, .alumni-table td, .no-alumni) {
+  color: var(--text-muted) !important;
+}
+
+body.dark-mode :is(.alumni-filter-card, .alumni-table-card, .alumni-modal) {
+  background: var(--surface-card) !important;
+  border-color: var(--border-subtle) !important;
+  box-shadow: none !important;
+}
+
+body.dark-mode .alumni-table thead,
+body.dark-mode .alumni-table tbody tr:hover {
+  background: var(--surface-raised) !important;
+}
+
+body.dark-mode :is(.alumni-table th, .alumni-table td) {
+  border-color: var(--border-subtle) !important;
+}
+
+body.dark-mode :is(.alumni-pagination button, .alumni-secondary-button, .clear-filter-button) {
+  background: var(--surface-raised) !important;
+  border-color: var(--border-subtle) !important;
+  color: var(--text-primary) !important;
+}
+
+body.dark-mode .alumni-id {
+  color: #8fc4ff !important;
+}
+
+body.dark-mode .alumni-close-button {
+  color: var(--text-muted) !important;
+}
+
+/* Alumni dashboard: do not allow its local blue/grey text palette to leak
+   onto charcoal dashboard surfaces. */
+body.dark-mode :is(.alumni-topbar h1, .alumni-dashboard-panel h2, .alumni-profile-summary strong, .alumni-dashboard-event strong, .alumni-dashboard-announcement strong) {
+  color: var(--text-heading) !important;
+}
+
+body.dark-mode :is(.alumni-topbar > div > p:last-child, .alumni-profile-summary span, .alumni-profile-summary small, .alumni-dashboard-panel p:not(.alumni-eyebrow), .alumni-dashboard-event span, .alumni-dashboard-announcement small, .alumni-events-no-upcoming) {
+  color: var(--text-muted) !important;
+}
+
+body.dark-mode :is(.alumni-loading-card, .alumni-events-no-upcoming) {
+  background: var(--surface-card) !important;
+  border-color: var(--border-subtle) !important;
+  color: var(--text-muted) !important;
+}
+
+body.dark-mode :is(.alumni-dashboard-event, .alumni-dashboard-announcement) {
+  border-color: var(--border-subtle) !important;
+}
+
+body.dark-mode .alumni-dashboard-announcement {
+  color: #8fc4ff !important;
+}
+
+body.dark-mode .alumni-dashboard-priority {
+  background: var(--surface-raised) !important;
+  color: var(--text-muted) !important;
+}
+
+body.dark-mode .alumni-dashboard-priority.important {
+  background: #3d3211 !important;
+  color: #ffd36d !important;
+}
+
+body.dark-mode .alumni-dashboard-priority.urgent {
+  background: #3b171d !important;
+  color: #ffb4bd !important;
+}
+
+body.dark-mode .alumni-top-avatar {
+  background: var(--surface-raised) !important;
+  color: #8fc4ff !important;
+}
+
+/* Alumni profile: protected fields, editable fields, and feedback states. */
+body.dark-mode .alumni-profile-page {
+  background: var(--surface-page) !important;
+  color: var(--text-primary) !important;
+}
+
+body.dark-mode :is(.alumni-profile-page h1, .profile-card h2, .profile-grid strong) {
+  color: var(--text-heading) !important;
+}
+
+body.dark-mode :is(.alumni-profile-page header > p:last-child, .profile-card-head p, .profile-grid span) {
+  color: var(--text-muted) !important;
+}
+
+body.dark-mode :is(.profile-back, .profile-eyebrow) {
+  color: #8fc4ff !important;
+}
+
+body.dark-mode .profile-card {
+  background: var(--surface-card) !important;
+  border-color: var(--border-subtle) !important;
+  box-shadow: none !important;
+}
+
+body.dark-mode .profile-actions button:first-child {
+  background: var(--surface-raised) !important;
+  color: var(--text-primary) !important;
+}
+
+body.dark-mode .profile-success {
+  background: #143524 !important;
+  color: #a7f3c4 !important;
+}
+
+body.dark-mode .profile-error {
+  background: #3b171d !important;
+  color: #ffb4bd !important;
+}
+
+/* Public landing page: retain the branded hero while making every content
+   section below it a true black-theme surface. */
+body.dark-mode :is(.home, .public-story, .public-events) {
+  background: var(--surface-page) !important;
+  color: var(--text-primary) !important;
+}
+
+body.dark-mode .public-story-grid > div:last-child {
+  background: var(--surface-card) !important;
+  border-left-color: var(--border-subtle) !important;
+  box-shadow: none !important;
+}
+
+body.dark-mode :is(.public-events-heading h2, .public-story h2, .public-trust-card h3, .public-events-grid h3) {
+  color: var(--text-heading) !important;
+}
+
+body.dark-mode :is(.public-events-heading > div > p:last-child, .public-trust-card p, .public-story-grid > div:last-child > p, .public-events-grid span, .public-events-grid small, .public-events-empty) {
+  color: var(--text-muted) !important;
+}
+
+body.dark-mode :is(.public-events-grid article, .public-trust-card, .public-events-empty) {
+  background: var(--surface-card) !important;
+  border-color: var(--border-subtle) !important;
+  box-shadow: none !important;
+}
+
+body.dark-mode .public-event-icon,
+body.dark-mode .public-trust-card > div {
+  background: var(--surface-raised) !important;
+  color: #8fc4ff !important;
+}
+
+body.dark-mode :is(.public-section-label, .public-text-link) {
+  color: #8fc4ff !important;
+}
+
+body.dark-mode .public-events-error {
+  border-color: #6b2932 !important;
+  background: #3b171d !important;
+  color: #ffb4bd !important;
+}

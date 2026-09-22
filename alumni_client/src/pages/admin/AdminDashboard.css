@@ -520,6 +520,8 @@
   .quick-action-grid {
     grid-template-columns: 1fr;
   }
+}
+
   .logout-button {
   width: 100%;
   border: none;
@@ -563,5 +565,4 @@
 .branch-info strong {
   display: block;
   margin-bottom: 4px;
-}
 }

@@ -1,19 +1,68 @@
+import { Children, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { getAdminDashboard } from "../../services/alumniService";
 import { getAdminUpcomingEvents } from "../../services/eventService";
 import { getAdminAnnouncements } from "../../services/announcementService";
 
-function AdminDashboard() {
-  const { user } = useAuth();
-  const [dashboard, setDashboard] = useState(null); const [error, setError] = useState(""); const [events, setEvents] = useState([]); const [announcements, setAnnouncements] = useState([]);
-  const isSuperAdmin = user?.role === "ADMIN" && user?.branch === null;
-  useEffect(() => { getAdminDashboard().then((response) => setDashboard(response.data)).catch((requestError) => setError(requestError.response?.data?.message || "Could not load dashboard data.")); getAdminUpcomingEvents({ page: 0, size: 3 }).then((response) => setEvents(response.data?.data?.content || [])).catch(() => {}); getAdminAnnouncements({ page: 0, size: 3 }).then((response) => setAnnouncements((response.data?.data?.content || []).filter((item) => item.status === "ACTIVE"))).catch(() => {}); }, []);
-  const stats = [["Total Alumni", dashboard?.totalAlumni, isSuperAdmin ? "Across all branches" : `${user?.branch || "Your"} branch`], ["Pending Registrations", dashboard?.pendingRegistrations, "Awaiting review"], ["Active Alumni", dashboard?.activeAlumni, "Active accounts"], ["Suspended Alumni", dashboard?.suspendedAlumni, "Suspended accounts"]];
-  return <main className="admin-main"><header className="admin-topbar"><div><h1>Admin Dashboard</h1><p>{isSuperAdmin ? "Organization-wide overview." : `Overview for the ${user?.branch} branch.`}</p></div><div className="admin-user"><div className="admin-avatar">{user?.email?.charAt(0).toUpperCase() || "A"}</div><div><strong>{isSuperAdmin ? "Super Admin" : `${user?.branch} Admin`}</strong><span>{user?.email}</span></div></div></header>{error && <p className="dashboard-error">{error}</p>}<section className="admin-stats">{stats.map(([label, value, note]) => <div className="admin-stat-card" key={label}><span>{label}</span><strong>{value ?? "—"}</strong><small>{note}</small></div>)}</section><section className="quick-actions"><div className="section-heading"><h2>Admin actions</h2><p>Manage the current administrative work.</p></div><div className="quick-action-grid"><Link to="/admin/alumni" className="quick-action"><div className="quick-icon blue">A</div><div><h3>Manage Alumni</h3><p>View, update, activate, or suspend accounts.</p></div></Link><Link to="/admin/registrations" className="quick-action"><div className="quick-icon orange">R</div><div><h3>Registration Requests</h3><p>Review pending registration requests.</p></div></Link><Link to="/admin/announcements" className="quick-action"><div className="quick-icon purple">N</div><div><h3>Announcements</h3><p>Publish updates to your alumni community.</p></div></Link>{isSuperAdmin && <Link to="/admin/admins" className="quick-action"><div className="quick-icon purple">M</div><div><h3>Admin Management</h3><p>Create and manage branch administrators.</p></div></Link>}</div></section><section className="dashboard-data-grid"><DashboardBreakdown title="Alumni by branch" data={dashboard?.alumniByBranch} emptyMessage="No alumni data is available yet." /><DashboardBreakdown title="Alumni by pass-out year" data={dashboard?.alumniByPassoutYear} emptyMessage="No pass-out-year data is available yet." /></section><section className="dashboard-community-grid"><DashboardPreview title="Upcoming Events" action="Manage events" to="/admin/events" empty="No upcoming events created yet.">{events.map((event) => <Link className="dashboard-preview-row" key={event.id} to={`/admin/events/${event.id}`}><div><strong>{event.title}</strong><span>{new Date(event.eventDateTime).toLocaleString()} · {event.venue}</span></div><small>{event.visibility === "ALL" ? "College-wide" : event.branch}</small></Link>)}</DashboardPreview><DashboardPreview title="Announcements" action="Manage announcements" to="/admin/announcements" empty="No active announcements yet.">{announcements.map((item) => <Link className="dashboard-preview-row announcement-preview-row" key={item.id} to="/admin/announcements"><div><strong>{item.title}</strong><span>{item.message}</span></div><small className={`dashboard-priority ${item.priority?.toLowerCase()}`}>{item.priority}</small></Link>)}</DashboardPreview></section></main>;
+function requestMessage(result, fallback) {
+  return result.status === "rejected" ? result.reason?.response?.data?.message || fallback : "";
 }
 
-function DashboardBreakdown({ title, data, emptyMessage }) { const entries = Object.entries(data || {}); return <section className="dashboard-breakdown"><h2>{title}</h2>{entries.length ? <div className="breakdown-list">{entries.map(([label, count]) => <div className="breakdown-row" key={label}><span>{label}</span><strong>{count}</strong></div>)}</div> : <p>{emptyMessage}</p>}</section>; }
-function DashboardPreview({ title, action, to, empty, children }) { return <section className="dashboard-breakdown dashboard-preview"><div className="dashboard-events-title"><h2>{title}</h2><Link to={to}>{action}</Link></div>{children.length ? children : <p>{empty}</p>}</section>; }
-export default AdminDashboard;
+export default function AdminDashboard() {
+  const { user } = useAuth();
+  const [dashboard, setDashboard] = useState(null);
+  const [error, setError] = useState("");
+  const [events, setEvents] = useState([]);
+  const [announcements, setAnnouncements] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const isSuperAdmin = user?.role === "ADMIN" && user?.branch === null;
+
+  useEffect(() => {
+    let active = true;
+    Promise.allSettled([
+      getAdminDashboard(),
+      getAdminUpcomingEvents({ page: 0, size: 3 }),
+      getAdminAnnouncements({ page: 0, size: 3 }),
+    ]).then(([dashboardResult, eventsResult, announcementsResult]) => {
+      if (!active) return;
+      if (dashboardResult.status === "fulfilled") setDashboard(dashboardResult.value.data);
+      if (eventsResult.status === "fulfilled") setEvents(eventsResult.value.data?.data?.content || []);
+      if (announcementsResult.status === "fulfilled") setAnnouncements((announcementsResult.value.data?.data?.content || []).filter((item) => item.status === "ACTIVE"));
+      setError([
+        requestMessage(dashboardResult, "Could not load dashboard metrics."),
+        requestMessage(eventsResult, "Could not load upcoming events."),
+        requestMessage(announcementsResult, "Could not load announcements."),
+      ].filter(Boolean).join(" "));
+      setLoading(false);
+    });
+    return () => { active = false; };
+  }, []);
+
+  const stats = [
+    ["Total Alumni", dashboard?.totalAlumni, isSuperAdmin ? "Across all branches" : `${user?.branch || "Your"} branch`],
+    ["Pending Registrations", dashboard?.pendingRegistrations, "Awaiting review"],
+    ["Active Alumni", dashboard?.activeAlumni, "Active accounts"],
+    ["Suspended Alumni", dashboard?.suspendedAlumni, "Suspended accounts"],
+  ];
+
+  return (
+    <main className="admin-main" aria-busy={loading}>
+      <header className="admin-topbar"><div><h1>Admin Dashboard</h1><p>{isSuperAdmin ? "Organization-wide overview." : `Overview for the ${user?.branch} branch.`}</p></div><div className="admin-user"><div className="admin-avatar">{user?.email?.charAt(0).toUpperCase() || "A"}</div><div><strong>{isSuperAdmin ? "Super Admin" : `${user?.branch} Admin`}</strong><span>{user?.email}</span></div></div></header>
+      {error && <p className="dashboard-error" role="alert">{error}</p>}
+      <section className="admin-stats" aria-label="Account statistics">{stats.map(([label, value, note]) => <div className="admin-stat-card" key={label}><span>{label}</span><strong>{loading ? "…" : value ?? "—"}</strong><small>{note}</small></div>)}</section>
+      <section className="quick-actions"><div className="section-heading"><h2>Admin actions</h2><p>Manage the current administrative work.</p></div><div className="quick-action-grid"><Link to="/admin/alumni" className="quick-action"><div className="quick-icon blue">A</div><div><h3>Manage Alumni</h3><p>View, update, activate, or suspend accounts.</p></div></Link><Link to="/admin/registrations" className="quick-action"><div className="quick-icon orange">R</div><div><h3>Registration Requests</h3><p>Review pending registration requests.</p></div></Link><Link to="/admin/announcements" className="quick-action"><div className="quick-icon purple">N</div><div><h3>Announcements</h3><p>Publish updates to your alumni community.</p></div></Link>{isSuperAdmin && <Link to="/admin/admins" className="quick-action"><div className="quick-icon purple">M</div><div><h3>Admin Management</h3><p>Create and manage branch administrators.</p></div></Link>}</div></section>
+      <section className="dashboard-data-grid"><DashboardBreakdown title="Alumni by branch" data={dashboard?.alumniByBranch} emptyMessage={loading ? "Loading alumni data…" : "No alumni data is available yet."} /><DashboardBreakdown title="Alumni by pass-out year" data={dashboard?.alumniByPassoutYear} emptyMessage={loading ? "Loading alumni data…" : "No pass-out-year data is available yet."} /></section>
+      <section className="dashboard-community-grid"><DashboardPreview title="Upcoming Events" action="Manage events" to="/admin/events" empty={loading ? "Loading events…" : "No upcoming events created yet."}>{events.map((event) => <Link className="dashboard-preview-row" key={event.id} to={`/admin/events/${event.id}`}><div><strong>{event.title}</strong><span>{new Date(event.eventDateTime).toLocaleString()} · {event.venue}</span></div><small>{event.visibility === "ALL" ? "College-wide" : event.branch}</small></Link>)}</DashboardPreview><DashboardPreview title="Announcements" action="Manage announcements" to="/admin/announcements" empty={loading ? "Loading announcements…" : "No active announcements yet."}>{announcements.map((item) => <Link className="dashboard-preview-row announcement-preview-row" key={item.id} to="/admin/announcements"><div><strong>{item.title}</strong><span>{item.message}</span></div><small className={`dashboard-priority ${item.priority?.toLowerCase()}`}>{item.priority}</small></Link>)}</DashboardPreview></section>
+    </main>
+  );
+}
+
+function DashboardBreakdown({ title, data, emptyMessage }) {
+  const entries = Object.entries(data || {});
+  return <section className="dashboard-breakdown"><h2>{title}</h2>{entries.length ? <div className="breakdown-list">{entries.map(([label, count]) => <div className="breakdown-row" key={label}><span>{label}</span><strong>{count}</strong></div>)}</div> : <p>{emptyMessage}</p>}</section>;
+}
+
+function DashboardPreview({ title, action, to, empty, children }) {
+  return <section className="dashboard-breakdown dashboard-preview"><div className="dashboard-events-title"><h2>{title}</h2><Link to={to}>{action}</Link></div>{Children.count(children) ? children : <p>{empty}</p>}</section>;
+}

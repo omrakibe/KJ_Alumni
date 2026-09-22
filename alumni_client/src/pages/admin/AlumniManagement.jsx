@@ -79,7 +79,10 @@ function AlumniManagement() {
     event.preventDefault();
     try {
       setSaving(true);
-      const payload = editableFields.reduce((result, field) => ({ ...result, [field]: form[field] }), {});
+      const payload = editableFields.reduce((result, field) => ({
+        ...result,
+        [field]: ["passoutYear", "currentPackage", "experience"].includes(field) ? Number(form[field]) : typeof form[field] === "string" ? form[field].trim() : form[field],
+      }), {});
       const response = await updateAlumni(selectedAlumni.id, payload);
       setSelectedAlumni(response.data);
       setForm(response.data);
@@ -125,16 +128,16 @@ function AlumniManagement() {
 
       {error && <p className="alumni-feedback alumni-error">{error}</p>}
       <div className="alumni-table-card"><div className="alumni-table-wrapper"><table className="alumni-table"><thead><tr><th>Alumni ID</th><th>Name</th><th>Email</th><th>Branch</th><th>Year</th><th>Status</th><th>Action</th></tr></thead><tbody>
-        {loading ? <tr><td colSpan="7" className="no-alumni">Loading alumni…</td></tr> : alumni.length ? alumni.map((alumnus) => <tr key={alumnus.id}><td className="alumni-id">{alumnus.alumniId}</td><td className="alumni-name">{fullName(alumnus)}</td><td>{alumnus.email}</td><td>{alumnus.branch}</td><td>{alumnus.passoutYear}</td><td><span className={`status-badge ${alumnus.status === "ACTIVE" ? "status-active" : "status-suspended"}`}>{alumnus.status}</span></td><td><button className="alumni-action-button" onClick={() => openAlumni(alumnus.id)}>View</button></td></tr>) : <tr><td colSpan="7" className="no-alumni">No alumni found.</td></tr>}
+        {loading ? <tr><td colSpan="7" className="no-alumni">Loading alumni…</td></tr> : alumni.length ? alumni.map((alumnus) => <tr key={alumnus.id}><td className="alumni-id">{alumnus.alumniId}</td><td className="alumni-name">{fullName(alumnus)}</td><td>{alumnus.email}</td><td>{alumnus.branch}</td><td>{alumnus.passoutYear}</td><td><span className={`status-badge ${alumnus.status === "ACTIVE" ? "status-active" : "status-suspended"}`}>{alumnus.status}</span></td><td><button type="button" className="alumni-action-button" onClick={() => openAlumni(alumnus.id)}>View</button></td></tr>) : <tr><td colSpan="7" className="no-alumni">No alumni found.</td></tr>}
       </tbody></table></div>
-        {pageInfo.totalPages > 1 && <div className="alumni-pagination"><button disabled={page === 0} onClick={() => setPage(page - 1)}>Previous</button><span>Page {page + 1} of {pageInfo.totalPages}</span><button disabled={page + 1 >= pageInfo.totalPages} onClick={() => setPage(page + 1)}>Next</button></div>}
+        {pageInfo.totalPages > 1 && <div className="alumni-pagination"><button type="button" disabled={page === 0} onClick={() => setPage(page - 1)}>Previous</button><span>Page {page + 1} of {pageInfo.totalPages}</span><button type="button" disabled={page + 1 >= pageInfo.totalPages} onClick={() => setPage(page + 1)}>Next</button></div>}
       </div>
 
-      {selectedAlumni && <div className="alumni-modal-backdrop" onMouseDown={() => !saving && setSelectedAlumni(null)}><section className="alumni-modal" onMouseDown={(event) => event.stopPropagation()}>
-        <div className="alumni-modal-header"><div><h2>{fullName(selectedAlumni)}</h2><p>{selectedAlumni.alumniId}</p></div><button className="alumni-close-button" onClick={() => setSelectedAlumni(null)} aria-label="Close">×</button></div>
+      {selectedAlumni && <div className="alumni-modal-backdrop" onMouseDown={() => !saving && setSelectedAlumni(null)}><section className="alumni-modal" role="dialog" aria-modal="true" aria-labelledby="alumni-detail-title" onMouseDown={(event) => event.stopPropagation()}>
+        <div className="alumni-modal-header"><div><h2 id="alumni-detail-title">{fullName(selectedAlumni)}</h2><p>{selectedAlumni.alumniId}</p></div><button type="button" className="alumni-close-button" onClick={() => setSelectedAlumni(null)} aria-label="Close alumni details" disabled={saving}>×</button></div>
         <form onSubmit={saveAlumni}>
           <div className="alumni-profile-grid">
-            <Detail label="Email" value={selectedAlumni.email} /><Detail label="Branch" value={selectedAlumni.branch} /><Detail label="Pass-out year" value={selectedAlumni.passoutYear} /><Detail label="Date of birth" value={selectedAlumni.dob} />
+            <Detail label="Email" value={selectedAlumni.email} /><Detail label="Date of birth" value={selectedAlumni.dob} />
             {editableFields.map((field) => <label key={field} className="alumni-field"><span>{field === "jobRole" ? "Job role" : field === "currentPackage" ? "Current package" : field === "passoutYear" ? "Pass-out year" : field.replace(/([A-Z])/g, " $1").replace(/^./, (letter) => letter.toUpperCase())}</span>{editMode && field === "branch" ? <select value={form.branch ?? ""} onChange={(event) => setForm((current) => ({ ...current, branch: event.target.value }))}>{branches.map((branch) => <option key={branch} value={branch}>{branch}</option>)}</select> : editMode ? <input required={field !== "middleName"} type={field === "currentPackage" || field === "experience" || field === "passoutYear" ? "number" : "text"} min={field === "currentPackage" || field === "experience" ? "0" : field === "passoutYear" ? "1900" : undefined} step={field === "currentPackage" || field === "experience" ? "0.1" : undefined} value={form[field] ?? ""} onChange={(event) => setForm((current) => ({ ...current, [field]: event.target.value }))} /> : <strong>{selectedAlumni[field] ?? "—"}</strong>}</label>)}
           </div>
           <div className="alumni-modal-actions"><button type="button" className="alumni-secondary-button" onClick={changeStatus} disabled={saving}>{selectedAlumni.status === "ACTIVE" ? "Suspend account" : "Activate account"}</button>{editMode ? <><button type="button" className="alumni-secondary-button" onClick={() => { setForm(selectedAlumni); setEditMode(false); }}>Cancel</button><button type="submit" className="alumni-primary-button" disabled={saving}>{saving ? "Saving…" : "Save changes"}</button></> : <button type="button" className="alumni-primary-button" onClick={() => setEditMode(true)}>Edit details</button>}</div>

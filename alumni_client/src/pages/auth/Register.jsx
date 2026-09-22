@@ -9,6 +9,7 @@ import {
 
 import { registerAlumni } from "../../services/authService";
 import { BRANCHES } from "./authConstants";
+import { storeVerificationEmail } from "./authFlowStorage";
 
 import AuthLayout from "../../component/Auth/AuthLayout";
 import FlashMessage from "../../component/Auth/FlashMessage";
@@ -228,18 +229,9 @@ function Register() {
           message: response.message,
         });
 
-        /*
-         * Give the user a moment to see the
-         * success flash message before moving
-         * to OTP verification.
-         */
-        setTimeout(() => {
-          navigate("/verify-email", {
-            state: {
-              email: formData.email.trim(),
-            },
-          });
-        }, 1200);
+        const registeredEmail = formData.email.trim().toLowerCase();
+        storeVerificationEmail(registeredEmail);
+        navigate("/verify-email", { state: { email: registeredEmail } });
 
       } else {
         setFlash({

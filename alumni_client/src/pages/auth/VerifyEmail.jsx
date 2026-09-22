@@ -13,6 +13,7 @@ import {
   verifyEmailOtp,
   resendOtp,
 } from "../../services/authService";
+import { clearVerificationEmail, readVerificationEmail } from "./authFlowStorage";
 
 function VerifyEmail() {
   const navigate = useNavigate();
@@ -28,7 +29,7 @@ function VerifyEmail() {
    *   },
    * });
    */
-  const email = location.state?.email || "";
+  const email = location.state?.email || readVerificationEmail();
 
   const [otp, setOtp] = useState("");
 
@@ -152,14 +153,8 @@ function VerifyEmail() {
          * }
          */
 
-        setTimeout(() => {
-          navigate("/login", {
-            state: {
-              message: response.message,
-              email,
-            },
-          });
-        }, 1800);
+        clearVerificationEmail();
+        navigate("/login", { replace: true, state: { message: response.message, email } });
       } else {
         showFlash(
           "error",

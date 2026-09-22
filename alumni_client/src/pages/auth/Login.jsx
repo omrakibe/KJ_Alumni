@@ -28,8 +28,8 @@ function Login() {
   const [loading, setLoading] = useState(false);
 
   const [flash, setFlash] = useState({
-    type: "",
-    message: "",
+    type: location.state?.message ? "success" : "",
+    message: location.state?.message || "",
   });
 
   useEffect(() => {
@@ -104,63 +104,29 @@ function Login() {
           return;
         }
 
-        /*
-         * Store exactly what the backend returned.
-         */
-        setAuthenticatedUser(token, null);
+        const decodedToken = jwtDecode(token);
+        const rawRole = decodedToken.role || decodedToken.roles?.[0] || "";
+        const role = String(rawRole).replace(/^ROLE_/, "");
 
-        setFlash({
-          type: "success",
-          message: response.message || "Login successful.",
-        });
-
-        /*
-         * We do NOT decide admin/alumni here because
-         * the login response currently provides only:
-         *
-         * token
-         * type
-         *
-         * Once the backend provides role information,
-         * we can route accordingly.
-         */
-        if (!token) {
+        if (role !== "ADMIN" && role !== "ALUMNI") {
           setFlash({
             type: "error",
-            message:
-              "Login successful, but authentication token was not received.",
+            message: "Login successful, but your account role could not be determined.",
           });
-
           return;
         }
 
-        const decodedToken = jwtDecode(token);
-
-        const role =
-          decodedToken.role ||
-          decodedToken.roles?.[0];
-
-        console.log("Decoded JWT:", decodedToken);
-        console.log("User role:", role);
+        setAuthenticatedUser(token, { email: decodedToken.sub || email, role });
 
         setFlash({
           type: "success",
           message: response.message || "Login successful.",
         });
 
-        setTimeout(() => {
-          if (role === "ADMIN") {
-            navigate("/admin/dashboard");
-          } else if (role === "ALUMNI") {
-            navigate("/alumni/dashboard");
-          } else {
-            setFlash({
-              type: "error",
-              message:
-                "Login successful, but your account role could not be determined.",
-            });
-          }
-        }, 800);
+        const requestedPath = location.state?.from;
+        const roleHome = role === "ADMIN" ? "/admin/dashboard" : "/alumni/dashboard";
+        const requestedPathIsAllowed = typeof requestedPath === "string" && requestedPath.startsWith(role === "ADMIN" ? "/admin/" : "/alumni/");
+        navigate(requestedPathIsAllowed ? requestedPath : roleHome, { replace: true });
       } else {
         setFlash({
           type: "error",

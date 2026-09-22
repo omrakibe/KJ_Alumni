@@ -1,11 +1,16 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { RouteLoading, SessionError } from "../component/RouteState";
 
 function SuperAdminRoute({ children }) {
-  const { user, isAuthenticated, loadingUser } = useAuth();
+  const { user, isAuthenticated, loadingUser, authError, retryAuth, logout } = useAuth();
 
   if (loadingUser) {
-    return null;
+    return <RouteLoading />;
+  }
+
+  if (authError) {
+    return <SessionError message={authError} onRetry={retryAuth} onSignOut={logout} />;
   }
 
   // Not logged in

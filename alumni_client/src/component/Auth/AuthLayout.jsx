@@ -6,6 +6,8 @@ import {
 
 import collegeLogo from "../../assets/kjcoemr-logo.png";
 import campusImage from "../../assets/kjcoemr.webp";
+import ThemeToggle from "../ThemeToggle";
+import { Link } from "react-router-dom";
 
 function AuthLayout({ children }) {
   return (
@@ -23,7 +25,7 @@ function AuthLayout({ children }) {
         <div className="auth-hero-content">
           {/* Logo */}
 
-          <a href={"/"}>
+          <Link to="/">
             <div className="auth-logo-container">
               <img
                 src={collegeLogo}
@@ -31,7 +33,7 @@ function AuthLayout({ children }) {
                 className="auth-logo"
               />
             </div>
-          </a>
+          </Link>
           {/* Main message */}
 
           <div className="auth-hero-text">
@@ -112,6 +114,7 @@ function AuthLayout({ children }) {
       ========================================== */}
 
       <main className="auth-main">
+        <ThemeToggle className="theme-toggle-auth" />
         <div className="auth-content">
           {children}
         </div>

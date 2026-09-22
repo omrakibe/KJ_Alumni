@@ -44,12 +44,6 @@ function Registrations() {
 
       const response = await getRegistrations();
 
-      console.log(
-        "REGISTRATIONS RESPONSE:",
-        response
-      );
-
-
       if (response.success) {
 
         setRegistrations(
@@ -66,11 +60,6 @@ function Registrations() {
       }
 
     } catch (error) {
-
-      console.error(
-        "REGISTRATIONS ERROR:",
-        error
-      );
 
       setError(
         error.response?.data?.message ||
@@ -91,9 +80,8 @@ function Registrations() {
   // ========================================
 
   useEffect(() => {
-
-    loadRegistrations();
-
+    const request = window.setTimeout(loadRegistrations, 0);
+    return () => window.clearTimeout(request);
   }, []);
 
 
@@ -148,11 +136,6 @@ function Registrations() {
       }
 
     } catch (error) {
-
-      console.error(
-        "APPROVE ERROR:",
-        error
-      );
 
       setError(
         error.response?.data?.message ||
@@ -260,11 +243,6 @@ function Registrations() {
       }
 
     } catch (error) {
-
-      console.error(
-        "REJECT ERROR:",
-        error
-      );
 
       setError(
         error.response?.data?.message ||

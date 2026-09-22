@@ -36,7 +36,10 @@ function AdminManagement() {
     }
   };
 
-  useEffect(() => { loadAdmins(); }, []);
+  useEffect(() => {
+    const request = window.setTimeout(loadAdmins, 0);
+    return () => window.clearTimeout(request);
+  }, []);
 
   const filteredAdmins = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -53,7 +56,7 @@ function AdminManagement() {
       setCreating(true);
       setError("");
       setSuccess("");
-      const response = await createBranchAdmin({ ...formData, email: formData.email.trim() });
+      const response = await createBranchAdmin({ ...formData, email: formData.email.trim().toLowerCase() });
       setSuccess(response.message || "Branch administrator created successfully.");
       setFormData({ email: "", password: "", branch: "" });
       await loadAdmins();
@@ -90,16 +93,16 @@ function AdminManagement() {
 
     <section className="super-admin-card"><div className="super-admin-card-title"><div><h2>Create Branch Administrator</h2><p>New administrators are immediately active and limited to their assigned branch.</p></div></div>
       <form className="admin-create-form" onSubmit={handleCreateAdmin}>
-        <label>Email<input type="email" value={formData.email} onChange={(event) => setFormData((current) => ({ ...current, email: event.target.value }))} placeholder="admin@college.edu" required /></label>
-        <label>Temporary password<input type="password" value={formData.password} onChange={(event) => setFormData((current) => ({ ...current, password: event.target.value }))} placeholder="Minimum 8 characters" minLength="8" required /></label>
-        <label>Assigned branch<select value={formData.branch} onChange={(event) => setFormData((current) => ({ ...current, branch: event.target.value }))} required><option value="">Select branch</option>{branches.map(([code, label]) => <option key={code} value={code}>{label} ({code})</option>)}</select></label>
+        <label>Email<input type="email" value={formData.email} onChange={(event) => setFormData((current) => ({ ...current, email: event.target.value }))} placeholder="admin@college.edu" autoComplete="email" disabled={creating} required /></label>
+        <label>Temporary password<input type="password" value={formData.password} onChange={(event) => setFormData((current) => ({ ...current, password: event.target.value }))} placeholder="Minimum 8 characters" minLength="8" autoComplete="new-password" disabled={creating} required /></label>
+        <label>Assigned branch<select value={formData.branch} onChange={(event) => setFormData((current) => ({ ...current, branch: event.target.value }))} disabled={creating} required><option value="">Select branch</option>{branches.map(([code, label]) => <option key={code} value={code}>{label} ({code})</option>)}</select></label>
         <button type="submit" className="admin-create-button" disabled={creating}>{creating ? "Creating…" : "Create administrator"}</button>
       </form>
     </section>
 
     <section className="super-admin-card"><div className="super-admin-list-header"><div><h2>Administrators</h2><p>{filteredAdmins.length} shown</p></div><input className="admin-search-input" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search email or branch" aria-label="Search administrators" /></div>
       <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Administrator</th><th>Access</th><th>Branch</th><th>Status</th><th aria-label="Actions" /></tr></thead><tbody>
-        {loading ? <tr><td colSpan="5" className="admin-table-state">Loading administrators…</td></tr> : filteredAdmins.length ? filteredAdmins.map((admin) => { const isSuperAdmin = !admin.branch; return <tr key={admin.id}><td><div className="admin-identity"><div className="admin-list-avatar">{admin.email?.charAt(0).toUpperCase()}</div><strong>{admin.email}</strong></div></td><td>{isSuperAdmin ? "Super Admin" : "Branch Admin"}</td><td>{isSuperAdmin ? "All branches" : admin.branch}</td><td><span className={`admin-status admin-status-${admin.status?.toLowerCase()}`}>{admin.status}</span></td><td>{isSuperAdmin ? <span className="admin-protected-label">Protected</span> : <button className="admin-delete-button" disabled={deletingId === admin.id} onClick={() => handleDeleteAdmin(admin)}>{deletingId === admin.id ? "Deleting…" : "Delete"}</button>}</td></tr>; }) : <tr><td colSpan="5" className="admin-table-state">No administrators match your search.</td></tr>}
+        {loading ? <tr><td colSpan="5" className="admin-table-state">Loading administrators…</td></tr> : filteredAdmins.length ? filteredAdmins.map((admin) => { const isSuperAdmin = !admin.branch; return <tr key={admin.id}><td><div className="admin-identity"><div className="admin-list-avatar">{admin.email?.charAt(0).toUpperCase()}</div><strong>{admin.email}</strong></div></td><td>{isSuperAdmin ? "Super Admin" : "Branch Admin"}</td><td>{isSuperAdmin ? "All branches" : admin.branch}</td><td><span className={`admin-status admin-status-${admin.status?.toLowerCase()}`}>{admin.status}</span></td><td>{isSuperAdmin ? <span className="admin-protected-label">Protected</span> : <button type="button" className="admin-delete-button" disabled={deletingId === admin.id} onClick={() => handleDeleteAdmin(admin)}>{deletingId === admin.id ? "Deleting…" : "Delete"}</button>}</td></tr>; }) : <tr><td colSpan="5" className="admin-table-state">No administrators match your search.</td></tr>}
       </tbody></table></div>
     </section>
   </div>;

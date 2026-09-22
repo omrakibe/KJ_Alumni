@@ -5,7 +5,7 @@ import "./Event.css";
 import "./EventRsvp.css";
 import "./EventAttendeeTools.css";
 
-const BRANCHES = ["COMP", "ENTC", "VLSI", "ADV ENTC", "MECH", "CIVIL", "ELECTRICAL"];
+const BRANCHES = ["COMP", "ENTC", "VLSI", "ADVENTC", "MECH", "CIVIL", "ELECTRICAL"];
 
 export default function EventDetail() {
   const { id } = useParams();
@@ -15,26 +15,39 @@ export default function EventDetail() {
   const [form, setForm] = useState({});
   const [error, setError] = useState("");
   const [attendees, setAttendees] = useState([]);
+  const [attendeesLoading, setAttendeesLoading] = useState(true);
+  const [attendeesError, setAttendeesError] = useState("");
+  const [savingEvent, setSavingEvent] = useState(false);
   const [message, setMessage] = useState("");
   const [sendingMessage, setSendingMessage] = useState(false);
   const [messageSuccess, setMessageSuccess] = useState("");
 
   useEffect(() => {
+    let active = true;
     getAdminEvent(id)
       .then(({ data }) => {
+        if (!active) return;
         setEvent(data.data);
         setForm(data.data);
       })
-      .catch((e) => setError(e.response?.data?.message || "Could not load this event."));
-    getEventAttendees(id, { page: 0, size: 50 }).then(({ data }) => setAttendees(data.data?.content || [])).catch(() => {});
+      .catch((e) => { if (active) setError(e.response?.data?.message || "Could not load this event."); });
+    getEventAttendees(id, { page: 0, size: 50 })
+      .then(({ data }) => { if (active) setAttendees(data.data?.content || []); })
+      .catch((requestError) => { if (active) setAttendeesError(requestError.response?.data?.message || "Could not load RSVP alumni."); })
+      .finally(() => { if (active) setAttendeesLoading(false); });
+    return () => { active = false; };
   }, [id]);
 
   const save = async (e) => {
     e.preventDefault();
     setError("");
     try {
+      setSavingEvent(true);
       const { data } = await updateEvent(id, {
         ...form,
+        title: form.title?.trim(),
+        description: form.description?.trim(),
+        venue: form.venue?.trim(),
         branch: form.visibility === "BRANCH" ? form.branch : null,
         eventDateTime: form.eventDateTime?.slice(0, 16),
       });
@@ -43,11 +56,13 @@ export default function EventDetail() {
       setEditing(false);
     } catch (err) {
       setError(err.response?.data?.message || "Could not update this event.");
+    } finally {
+      setSavingEvent(false);
     }
   };
   const removeFromHistory = async () => { if (!window.confirm("Remove this completed event from history? This permanently deletes it and all RSVP records.")) return; try { await cancelEvent(id); navigate("/admin/events"); } catch (err) { setError(err.response?.data?.message || "Could not remove this event."); } };
-  const sendUpdate = async (e) => { e.preventDefault(); if (!message.trim()) return; setSendingMessage(true); setError(""); try { await sendEventAttendeeUpdate(id, message.trim()); setMessage(""); setMessageSuccess("Your update is being emailed to RSVP alumni."); } catch (err) { setError(err.response?.data?.message || "Could not send the attendee update."); } finally { setSendingMessage(false); } };
-  const exportCsv = async () => { try { const response = await downloadEventAttendeesCsv(id); const url = URL.createObjectURL(new Blob([response.data], { type: "text/csv" })); const anchor = document.createElement("a"); anchor.href = url; anchor.download = `${event.title.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}-attendees.csv`; anchor.click(); URL.revokeObjectURL(url); } catch (err) { setError(err.response?.data?.message || "Could not export attendees."); } };
+  const sendUpdate = async (e) => { e.preventDefault(); if (!message.trim()) return; setSendingMessage(true); setError(""); setMessageSuccess(""); try { await sendEventAttendeeUpdate(id, message.trim()); setMessage(""); setMessageSuccess("Your update is being emailed to RSVP alumni."); } catch (err) { setError(err.response?.data?.message || "Could not send the attendee update."); } finally { setSendingMessage(false); } };
+  const exportCsv = async () => { try { const response = await downloadEventAttendeesCsv(id); const url = URL.createObjectURL(new Blob([response.data], { type: "text/csv;charset=utf-8" })); const anchor = document.createElement("a"); anchor.href = url; anchor.download = `${event.title.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}-attendees.csv`; document.body.appendChild(anchor); anchor.click(); anchor.remove(); window.setTimeout(() => URL.revokeObjectURL(url), 0); } catch (err) { setError(err.response?.data?.message || "Could not export attendees."); } };
 
   if (!event) return <main className="event-detail-page">{error || "Loading event…"}</main>;
 
@@ -68,9 +83,9 @@ export default function EventDetail() {
             <div><small>Date & time</small><strong>{new Date(event.eventDateTime).toLocaleString()}</strong></div>
             <div><small>Venue</small><strong>{event.venue}</strong></div>
           </div>
-          <div className="event-detail-attendees"><div className="event-attendee-heading"><div><small>RSVPs</small><strong>{event.attendeeCount} {event.attendeeCount === 1 ? "alumnus plans" : "alumni plan"} to attend</strong></div></div>{attendees.length ? <div className="event-attendee-list">{attendees.map((attendee) => <div key={attendee.alumniId}><span>{attendee.name}</span><small>{attendee.branch} · {attendee.passoutYear} · RSVP {new Date(attendee.rsvpedAt).toLocaleDateString()}</small></div>)}</div> : <p>No RSVP responses yet.</p>}</div>
-          <div className="event-attendee-tools"><button className="event-export-button" onClick={exportCsv}>Download RSVP CSV</button>{event.status === "ACTIVE" && <form onSubmit={sendUpdate}><label>Message RSVP alumni<textarea value={message} maxLength="3000" placeholder="Share a venue update, timing change, or event instructions…" onChange={(e) => setMessage(e.target.value)} /></label><div><small>{message.length}/3000</small><button disabled={!message.trim() || sendingMessage}>{sendingMessage ? "Sending…" : "Send update to RSVP alumni"}</button></div>{messageSuccess && <p>{messageSuccess}</p>}</form>}</div>
-          {event.status === "COMPLETED" ? <button className="event-detail-edit event-detail-remove" onClick={removeFromHistory}>Remove from history</button> : <button className="event-detail-edit" onClick={() => setEditing(true)}>Edit event</button>}
+          <div className="event-detail-attendees" aria-busy={attendeesLoading}><div className="event-attendee-heading"><div><small>RSVPs</small><strong>{event.attendeeCount ?? attendees.length} {(event.attendeeCount ?? attendees.length) === 1 ? "alumnus plans" : "alumni plan"} to attend</strong></div></div>{attendeesError ? <p className="event-error" role="alert">{attendeesError}</p> : attendeesLoading ? <p>Loading RSVP alumni…</p> : attendees.length ? <div className="event-attendee-list">{attendees.map((attendee) => <div key={attendee.alumniId}><span>{attendee.name}</span><small>{attendee.branch} · {attendee.passoutYear} · RSVP {new Date(attendee.rsvpedAt).toLocaleDateString()}</small></div>)}</div> : <p>No RSVP responses yet.</p>}</div>
+          <div className="event-attendee-tools"><button type="button" className="event-export-button" onClick={exportCsv}>Download RSVP CSV</button>{event.status === "ACTIVE" && <form onSubmit={sendUpdate}><label>Message RSVP alumni<textarea value={message} maxLength="3000" placeholder="Share a venue update, timing change, or event instructions…" onChange={(e) => setMessage(e.target.value)} disabled={sendingMessage} /></label><div><small>{message.length}/3000</small><button type="submit" disabled={!message.trim() || sendingMessage}>{sendingMessage ? "Sending…" : "Send update to RSVP alumni"}</button></div>{messageSuccess && <p role="status">{messageSuccess}</p>}</form>}</div>
+          {event.status === "COMPLETED" ? <button type="button" className="event-detail-edit event-detail-remove" onClick={removeFromHistory}>Remove from history</button> : <button type="button" className="event-detail-edit" onClick={() => setEditing(true)}>Edit event</button>}
         </section>
       ) : (
         <form className="event-form event-detail-form" onSubmit={save}>
@@ -83,7 +98,7 @@ export default function EventDetail() {
           </div>
           <label>Audience<select value={form.visibility || "ALL"} onChange={(e) => setForm({ ...form, visibility: e.target.value, branch: e.target.value === "ALL" ? null : form.branch })}><option value="ALL">College-wide alumni</option><option value="BRANCH">Specific branch</option></select></label>
           {form.visibility === "BRANCH" && <label>Branch<select required value={form.branch || ""} onChange={(e) => setForm({ ...form, branch: e.target.value })}><option value="">Select branch</option>{BRANCHES.map((branch) => <option key={branch} value={branch}>{branch}</option>)}</select></label>}
-          <div className="event-detail-actions"><button type="button" className="event-detail-cancel" onClick={() => { setForm(event); setEditing(false); }}>Cancel</button><button>Save changes</button></div>
+          <div className="event-detail-actions"><button type="button" className="event-detail-cancel" onClick={() => { setForm(event); setEditing(false); }} disabled={savingEvent}>Cancel</button><button type="submit" disabled={savingEvent}>{savingEvent ? "Saving…" : "Save changes"}</button></div>
         </form>
       )}
     </main>

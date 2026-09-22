@@ -1,5 +1,5 @@
 import AppRoutes from "./routes/AppRoutes";
-import ThemeToggle from "./component/ThemeToggle";
+import ErrorBoundary from "./component/ErrorBoundary";
 import "./styles/dark-mode.css";
 import "./styles/admin-dark.css";
 import "./styles/remaining-dark.css";
@@ -13,7 +13,7 @@ import "./styles/admin-mobile-navigation.css";
 import "./styles/mobile-menu-drawer.css";
 
 function App() {
-  return <><AppRoutes /><ThemeToggle /></>;
+  return <ErrorBoundary><AppRoutes /></ErrorBoundary>;
 }
 
 export default App;

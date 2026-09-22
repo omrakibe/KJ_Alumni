@@ -14,6 +14,9 @@ import AlumniDashboard from "../pages/alumni/AlumniDashboard";
 import AlumniProfile from "../pages/alumni/AlumniProfile";
 import AlumniEvents from "../pages/alumni/AlumniEvents";
 import AlumniAnnouncements from "../pages/alumni/AlumniAnnouncements";
+import AlumniJobs from "../pages/alumni/jobs/AlumniJobs";
+import CreateJob from "../pages/alumni/jobs/CreateJob";
+import JobDetail from "../pages/jobs/JobDetail";
 
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import AlumniManagement from "../pages/admin/AlumniManagement";
@@ -24,10 +27,12 @@ import CreateEvent from "../pages/admin/event/CreateEvent";
 import EventDetail from "../pages/admin/event/EventDetail";
 import AlumniEventDetail from "../pages/alumni/AlumniEventDetail";
 import Announcements from "../pages/admin/announcement/Announcements";
+import AdminJobs from "../pages/admin/jobs/Jobs";
 import ProtectedRoute from "./ProtectedRoute";
 import SuperAdminRoute from "./SuperAdminRoute";
 import AdminLayout from "../component/Admin/AdminLayout";
 import AlumniLayout from "../component/Alumni/AlumniLayout";
+import { NotFound } from "../component/RouteState";
 
 
 function AppRoutes() {
@@ -91,6 +96,10 @@ function AppRoutes() {
       <Route path="/alumni/events" element={<ProtectedRoute allowedRole="ALUMNI"><AlumniLayout><AlumniEvents /></AlumniLayout></ProtectedRoute>} />
       <Route path="/alumni/events/:id" element={<ProtectedRoute allowedRole="ALUMNI"><AlumniLayout><AlumniEventDetail /></AlumniLayout></ProtectedRoute>} />
       <Route path="/alumni/announcements" element={<ProtectedRoute allowedRole="ALUMNI"><AlumniLayout><AlumniAnnouncements /></AlumniLayout></ProtectedRoute>} />
+      <Route path="/alumni/jobs" element={<ProtectedRoute allowedRole="ALUMNI"><AlumniLayout><AlumniJobs /></AlumniLayout></ProtectedRoute>} />
+      <Route path="/alumni/jobs/new" element={<ProtectedRoute allowedRole="ALUMNI"><AlumniLayout><CreateJob /></AlumniLayout></ProtectedRoute>} />
+      <Route path="/alumni/jobs/:id/edit" element={<ProtectedRoute allowedRole="ALUMNI"><AlumniLayout><CreateJob /></AlumniLayout></ProtectedRoute>} />
+      <Route path="/alumni/jobs/:id" element={<ProtectedRoute allowedRole="ALUMNI"><AlumniLayout><JobDetail /></AlumniLayout></ProtectedRoute>} />
 
 
       {/* =========================
@@ -114,6 +123,10 @@ function AppRoutes() {
       <Route path="/admin/events/create" element={<ProtectedRoute allowedRole="ADMIN"><AdminLayout><CreateEvent /></AdminLayout></ProtectedRoute>} />
       <Route path="/admin/events/:id" element={<ProtectedRoute allowedRole="ADMIN"><AdminLayout><EventDetail /></AdminLayout></ProtectedRoute>} />
       <Route path="/admin/announcements" element={<ProtectedRoute allowedRole="ADMIN"><AdminLayout><Announcements /></AdminLayout></ProtectedRoute>} />
+      <Route path="/admin/jobs" element={<ProtectedRoute allowedRole="ADMIN"><AdminLayout><AdminJobs /></AdminLayout></ProtectedRoute>} />
+      <Route path="/admin/jobs/:id" element={<ProtectedRoute allowedRole="ADMIN"><AdminLayout><JobDetail admin /></AdminLayout></ProtectedRoute>} />
+
+      <Route path="*" element={<NotFound />} />
 
     </Routes>
   );

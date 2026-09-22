@@ -10,6 +10,7 @@ import {
 
 import AuthLayout from "../../component/Auth/AuthLayout";
 import { resetPassword } from "../../services/authService";
+import { clearPasswordResetFlow, readPasswordResetFlow } from "./authFlowStorage";
 
 function ResetPassword() {
   const navigate = useNavigate();
@@ -18,11 +19,9 @@ function ResetPassword() {
   /*
    * resetRequestId comes from ForgotPassword.jsx
    */
-  const resetRequestId =
-    location.state?.resetRequestId || "";
-
-  const email =
-    location.state?.email || "";
+  const storedResetFlow = readPasswordResetFlow();
+  const resetRequestId = location.state?.resetRequestId || storedResetFlow.resetRequestId || "";
+  const email = location.state?.email || storedResetFlow.email || "";
 
   const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] =
@@ -154,18 +153,8 @@ function ResetPassword() {
           message: response.message,
         });
 
-        /*
-         * Give the user a moment to see the
-         * success flash before going to login.
-         */
-        setTimeout(() => {
-          navigate("/login", {
-            state: {
-              message: response.message,
-              email,
-            },
-          });
-        }, 1500);
+        clearPasswordResetFlow();
+        navigate("/login", { replace: true, state: { message: response.message, email } });
       } else {
         setFlash({
           type: "error",

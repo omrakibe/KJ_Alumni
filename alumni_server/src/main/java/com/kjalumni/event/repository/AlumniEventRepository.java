@@ -19,6 +19,12 @@ public interface AlumniEventRepository extends JpaRepository<AlumniEvent, UUID> 
     Page<AlumniEvent> findByStatusAndEventDateTimeLessThanOrderByEventDateTimeDesc(EventStatus status, LocalDateTime before, Pageable pageable);
     Page<AlumniEvent> findByCreatedByAndStatusAndEventDateTimeGreaterThanEqualOrderByEventDateTimeAsc(User user, EventStatus status, LocalDateTime from, Pageable pageable);
     Page<AlumniEvent> findByCreatedByAndStatusAndEventDateTimeLessThanOrderByEventDateTimeDesc(User user, EventStatus status, LocalDateTime before, Pageable pageable);
+    @Query("select e from AlumniEvent e where e.visibility = com.kjalumni.common.enums.EventVisibility.ALL or e.branch = :branch or e.createdBy = :user")
+    Page<AlumniEvent> findVisibleToAdminBranch(Branch branch, User user, Pageable pageable);
+    @Query("select e from AlumniEvent e where e.status = :status and e.eventDateTime >= :now and (e.visibility = com.kjalumni.common.enums.EventVisibility.ALL or e.branch = :branch or e.createdBy = :user)")
+    Page<AlumniEvent> findUpcomingVisibleToAdminBranch(Branch branch, User user, EventStatus status, LocalDateTime now, Pageable pageable);
+    @Query("select e from AlumniEvent e where e.status = :status and e.eventDateTime < :now and (e.visibility = com.kjalumni.common.enums.EventVisibility.ALL or e.branch = :branch or e.createdBy = :user)")
+    Page<AlumniEvent> findHistoryVisibleToAdminBranch(Branch branch, User user, EventStatus status, LocalDateTime now, Pageable pageable);
     @Query("select e from AlumniEvent e where e.status = :status and (e.visibility = com.kjalumni.common.enums.EventVisibility.ALL or e.branch = :branch) order by e.eventDateTime asc")
     Page<AlumniEvent> findVisibleToBranch(Branch branch, EventStatus status, Pageable pageable);
     @Query("select e from AlumniEvent e where e.status = :status and e.eventDateTime >= :now and (e.visibility = com.kjalumni.common.enums.EventVisibility.ALL or e.branch = :branch) order by e.eventDateTime asc")

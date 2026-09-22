@@ -10,6 +10,7 @@ import {
 import AuthLayout from "../../component/Auth/AuthLayout";
 
 import { forgotPassword } from "../../services/authService";
+import { storePasswordResetFlow } from "./authFlowStorage";
 
 function ForgotPassword() {
   const navigate = useNavigate();
@@ -106,18 +107,9 @@ function ForgotPassword() {
           message: response.message,
         });
 
-        /*
-         * Give the user a moment to see the
-         * success flash before moving to OTP.
-         */
-        setTimeout(() => {
-          navigate("/reset-password", {
-            state: {
-              resetRequestId,
-              email: trimmedEmail,
-            },
-          });
-        }, 1500);
+        const resetFlow = { resetRequestId, email: trimmedEmail.toLowerCase() };
+        storePasswordResetFlow(resetFlow);
+        navigate("/reset-password", { state: resetFlow });
       } else {
         setFlash({
           type: "error",
